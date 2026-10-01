@@ -1940,8 +1940,8 @@ a.cartbar{text-decoration:none}
   var EDGE={c1:1,c2:2,c3:3,c4:4,c5:5,c6:6,c7:7,c8:8,c9:9,c10:10};
   // Published lessons on the Danny유 YouTube channel (playlist PLbvTJWq5lc7g)
   var YT={c1:'UyipAajrFmc',c2:'oD-skV8EeMU',c7:'P1BWehlBfGQ',c3:'Y8k4zfuen8k',c5:'o5OJWz4Pn3g',c6:'Qre2N4f8oz0',c8:'SH387Y3rcCA',c4:'Mvjp_ngX_MU',c9:'QhrYamyLKwA',c10:'KmyTzArn_r8'};
-  // MP4 files live on the Netlify site; same-origin there (so the link downloads), a new tab elsewhere
-  var MP4_BASE=/(^|\.)ai-with-danny\.netlify\.app$|^localhost$/.test(location.hostname)?'videos/':'https://ai-with-danny.netlify.app/videos/';
+  // MP4 files live next to the page on the real site (GitHub Pages, or the old Netlify copy); a new tab elsewhere
+  var MP4_BASE=/^yukevin99-ship-it\.github\.io$|(^|\.)ai-with-danny\.netlify\.app$|^localhost$/.test(location.hostname)?'videos/':'https://yukevin99-ship-it.github.io/ai-with-danny/videos/';
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function est(s){return Math.min(19000,Math.max(4200,s.length*140+1000))}
   function pad(n){return n<10?'0'+n:''+n}
@@ -2174,7 +2174,7 @@ function setStatus(state, text, when = "") {
   $("cartStatusText").textContent = text;
   $("cartWhen").textContent = when;
 }
-const LIVE_URL = "https://ai-with-danny.netlify.app/#cart";
+const LIVE_URL = "https://yukevin99-ship-it.github.io/ai-with-danny/#cart";
 function fallback(title, body, withLink) {
   $("cartMap").innerHTML = "";
   const box = document.createElement("div"); box.className = "fallback";
@@ -2186,7 +2186,7 @@ function fallback(title, body, withLink) {
     a.href = LIVE_URL; a.target = "_blank"; a.rel = "noopener"; a.className = "livelink";
     a.textContent = "실시간 지도 열기 →";
     inner.appendChild(a);
-    const u = document.createElement("span"); u.className = "liveurl"; u.textContent = "ai-with-danny.netlify.app";
+    const u = document.createElement("span"); u.className = "liveurl"; u.textContent = "yukevin99-ship-it.github.io/ai-with-danny";
     inner.appendChild(u);
   }
   box.appendChild(inner); $("cartMap").appendChild(box);
