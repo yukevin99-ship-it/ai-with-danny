@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>카트 운전자</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:480px;margin:0 auto;padding:16px;background:#F5F6F1;color:#1B2540}
+input,button{width:100%;padding:14px;margin:6px 0;font-size:16px;border-radius:8px;border:1px solid #DADDD3}
+button{cursor:pointer;font-weight:600}
+button:disabled{opacity:.45;cursor:not-allowed}
+#start{background:#16a34a;color:#fff;border:0}
+#stop{background:#dc2626;color:#fff;border:0}
+#log{font-family:monospace;font-size:13px;white-space:pre-wrap;background:#fff;border:1px solid #DADDD3;border-radius:8px;padding:12px}
+.warn{background:#FBE9E1;color:#B4461C;border-radius:8px;padding:10px 12px;font-size:14px}
+.consent{display:flex;gap:10px;align-items:flex-start;font-size:14px;background:#fff;border:1px solid #DADDD3;border-radius:8px;padding:12px}
+.consent input{width:20px;height:20px;margin:2px 0 0;flex:none}
+#state{font-weight:700}
+h2{font-size:18px;margin:24px 0 4px}
+.hint{font-size:14px;color:#4b5563;margin:0 0 8px}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.menu button{margin:0;background:#1F5FBF;color:#fff;border:0;padding:16px 8px;line-height:1.3}
+.menu button small{display:block;font-weight:400;opacity:.85}
+#undo{background:#fff}
+#salesInfo{font-size:14px}
+.card{background:#fff;border:1px solid #DADDD3;border-radius:8px;padding:12px;font-size:15px}
+.rec ol{margin:6px 0 0;padding-left:22px}
+.rec li{margin:6px 0}
+.rec li b{font-size:16px}
+.rec small{display:block;color:#4b5563}
+.rec .basis{font-size:13px;color:#4b5563;margin:0}
+.row{display:flex;gap:8px}
+.row > *{margin:0}
+.row input{flex:1;min-width:0}
+.row button{width:auto;flex:none;padding:14px 16px}
+.now{font-weight:700;font-size:17px;margin:0 0 6px}
+#stockSold{background:#fff;color:#B4461C;border-color:#B4461C}
+#noticeClear{background:#fff}
+.acts{display:flex;gap:6px;margin-top:6px}
+.acts button{margin:0;padding:10px 6px;font-size:14px;width:auto;flex:1}
+.acts .go{background:#0E7065;color:#fff;border:0}
+.acts .done{background:#16a34a;color:#fff;border:0}
+.acts .no{background:#fff;color:#B4461C;border-color:#B4461C}
+</style>
+</head>
+<body>
+<h1>🛒 카트 위치 송신</h1>
+<p id="cfgWarn" class="warn" hidden>cart-config.js 에 Firebase 설정값을 먼저 넣어 주세요.</p>
+
+<div id="loginBox" hidden>
+  <input id="email" type="email" placeholder="운전자 이메일" autocomplete="username">
+  <input id="pw" type="password" placeholder="비밀번호" autocomplete="current-password">
+  <button id="login">로그인</button>
+</div>
+
+<div id="ctrl" hidden>
+  <label class="consent"><input type="checkbox" id="consent">
+    <span>운행 중 이 폰의 위치(캠퍼스 안일 때만)와 오늘 지나온 경로가 홈페이지에서 <b>누구나 볼 수 있게 공개</b>된다는 것을 알고 동의해요.
+    경로는 다음 운행을 시작할 때 지워지고, 최대 2,000개 점까지만 보관돼요.
+    판매 버튼으로 남긴 기록(상품, 시각, 약 10m 단위 위치)은 판매 히트맵을 위해 따로 공개 보관돼요.</span></label>
+  <p>상태: <span id="state">대기 중</span></p>
+  <button id="start" disabled>운행 시작 (경로 초기화)</button>
+  <button id="stop" disabled>운행 종료</button>
+  <p class="warn">위치 전송은 <b>이 페이지가 화면에 켜져 있는 동안만</b> 돼요. 화면을 끄거나, 잠그거나, 다른 앱으로 넘어가면 멈춰요. 폰은 충전기에 연결하고 이 화면을 띄운 채로 거치하세요.</p>
+  <div id="log">대기 중</div>
+
+  <h2>지금 갈 곳 추천</h2>
+  <p class="hint">지난 판매 기록에서 지금 시간대(앞뒤 1시간)에 많이 팔린 곳이에요. 1분마다 새로 계산해요.</p>
+  <div class="card rec" id="rec">판매 기록을 불러오는 중…</div>
+
+  <h2>요청이 몰린 곳</h2>
+  <p class="hint">방문자가 홈페이지에서 "여기로 와 주세요"로 보낸 최근 30분 요청이에요. 위의 판매 추천(실적)과 비교해서 동선을 정해 보세요. <b>가는 중 / 도착 / 못 가요</b>를 누르면 요청한 고객 화면에 바로 안내가 떠요. 아무것도 안 누르면 30분 뒤 "시간 안에 가지 못했어요"로 자동 안내돼요.</p>
+  <div class="card rec" id="reqCard">요청을 불러오는 중…</div>
+
+  <h2>판매 기록</h2>
+  <p class="hint">하나 팔 때마다 상품 버튼을 눌러 주세요. 지금 카트 위치(약 10m 단위로 반올림)와 시각이 기록되고, 홈페이지의 판매 히트맵과 안내 챗봇이 이 기록을 써요. 운행 중일 때만 누를 수 있어요.</p>
+  <div class="menu" id="menuBtns"></div>
+  <button id="undo" disabled>마지막 기록 취소</button>
+  <p id="salesInfo">이번 운행 판매: 0개</p>
+
+  <h2>남은 수량</h2>
+  <p class="hint">운행 전에 오늘 준비한 수량을 저장해 두면, 판매 버튼을 누를 때마다 1개씩 자동으로 줄어요. 홈페이지와 챗봇이 "남은 가챠 N개", "품절"을 안내해요. (오늘 저장한 값만 보여요)</p>
+  <div class="card">
+    <p class="now" id="stockNow">오늘 남은 수량: 아직 저장 안 함</p>
+    <div class="row">
+      <input id="stockInput" type="number" inputmode="numeric" min="0" max="999" placeholder="예: 30" aria-label="남은 수량">
+      <button id="stockSave">수량 저장</button>
+    </div>
+    <button id="stockSold">품절로 표시 (0개)</button>
+  </div>
+
+  <h2>공지 한 줄</h2>
+  <p class="hint">홈페이지 지도 위에 배너로 떠요. 예: "5시에 노천극장 앞에 있을게요". 80자까지, 오늘 올린 공지만 보여요.</p>
+  <div class="card">
+    <p class="now" id="noticeNow">지금 공지: 없음</p>
+    <input id="noticeInput" maxlength="80" placeholder="공지 내용 (80자 이내)" aria-label="공지 내용">
+    <div class="row">
+      <button id="noticeSave">공지 올리기</button>
+      <button id="noticeClear">공지 내리기</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { FIREBASE_CONFIG, FIREBASE_SDK, CAMPUS_BOUNDS, MENU, PLACES } from "./cart-config.js";
+import { recommendSpots, summarizeRequests, todayStock, todayNotice, kstParts } from "./cart-facts.js";
+const $ = (id) => document.getElementById(id);
+
+if (!FIREBASE_CONFIG) {
+  $("cfgWarn").hidden = false;
+} else {
+  const { initializeApp } = await import(`${FIREBASE_SDK}/firebase-app.js`);
+  const { getAuth, signInWithEmailAndPassword, onAuthStateChanged } = await import(`${FIREBASE_SDK}/firebase-auth.js`);
+  const { getDatabase, ref, set, push, remove, update, serverTimestamp, runTransaction, onValue, query, orderByChild, limitToLast } =
+    await import(`${FIREBASE_SDK}/firebase-database.js`);
+
+  const app  = initializeApp(FIREBASE_CONFIG);
+  const auth = getAuth(app);
+  const db   = getDatabase(app);
+
+  const MIN_INTERVAL_MS = 3000;   // 최소 전송 간격
+  const MIN_MOVE_M      = 5;      // 이만큼 이상 움직였을 때만 경로 점 추가
+  const MAX_ACCURACY_M  = 40;     // 정확도가 이보다 나쁘면 무시 (GPS 튐 방지)
+  const MAX_TRAIL       = 2000;   // DB에 보관할 경로 점 최대 개수 (넘으면 오래된 점부터 삭제)
+
+  let watchId = null, wakeLock = null, last = null, lastSent = 0, busy = false;
+  let trailKeys = [];             // 이번 운행에서 올린 경로 점 키 (운행 시작 때 전부 지우므로 전체 목록과 같음)
+  const FIX_MAX_AGE_MS = 2 * 60 * 1000;   // 판매 기록에 쓸 위치는 2분 이내 것만
+  let lastFix = null;             // 마지막으로 확인된 캠퍼스 안 위치 { lat, lng, t }
+  let saleKeys = [], saleQty = 0; // 이번 운행에서 기록한 판매 (마지막 기록 취소용)
+
+  const log = (msg) => { $("log").textContent = msg; };
+  const addLog = (msg) => { $("log").textContent += "\n" + msg; };
+  function render() {
+    const running = watchId !== null;
+    $("state").textContent = busy ? "처리 중…" : running ? "운행 중 (위치 전송 중)" : "대기 중";
+    $("start").disabled = busy || running || !$("consent").checked;
+    $("stop").disabled  = busy || !running;
+    for (const b of $("menuBtns").children) b.disabled = !running;
+    $("undo").disabled = !saleKeys.length;
+    $("salesInfo").textContent = `이번 운행 판매: ${saleQty}개`;
+  }
+
+  // 판매 기록: 상품 버튼 한 번 = 1개
+  const round4 = (x) => Math.round(x * 1e4) / 1e4;   // 약 10m 단위로 반올림해서 저장
+  for (const m of MENU) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = m.name;
+    const small = document.createElement("small");
+    small.textContent = m.price.toLocaleString("ko-KR") + "원";
+    b.appendChild(small);
+    b.onclick = () => recordSale(m);
+    $("menuBtns").appendChild(b);
+  }
+  async function recordSale(m) {
+    if (watchId === null) return;
+    if (!lastFix || Date.now() - lastFix.t > FIX_MAX_AGE_MS) {
+      addLog(`판매 기록 실패: 최근 위치가 없어요. 밖에서 GPS가 잡힌 뒤 다시 눌러 주세요.`);
+      return;
+    }
+    try {
+      const sale = push(ref(db, "sales"), { lat: round4(lastFix.lat), lng: round4(lastFix.lng), ts: serverTimestamp(), item: m.id, qty: 1 });
+      await sale;
+      saleKeys.push(sale.key); saleQty += 1;
+      addLog(`판매 기록: ${m.name} 1개`);
+      bumpStock(-1);
+    } catch (e) {
+      addLog("판매 기록 실패: " + e.message);
+    }
+    render();
+  }
+  $("undo").onclick = async () => {
+    const key = saleKeys.at(-1);
+    if (!key) return;
+    try {
+      await remove(ref(db, "sales/" + key));
+      saleKeys.pop(); saleQty -= 1;
+      addLog("마지막 판매 기록을 취소했어요.");
+      bumpStock(+1);
+    } catch (e) {
+      addLog("취소 실패: " + e.message);
+    }
+    render();
+  };
+
+  const hhmm = (ts) => kstParts(ts).text.slice(-5);
+
+  // ───────── 남은 수량 (cart/stock) ─────────
+  let stockVal = null;
+  onValue(ref(db, "cart/stock"), (snap) => {
+    stockVal = snap.val();
+    const st = todayStock(stockVal, Date.now());
+    $("stockNow").textContent = !st ? "오늘 남은 수량: 아직 저장 안 함"
+      : st.count === 0 ? `오늘 남은 수량: 품절 (${hhmm(st.ts)} 기준)`
+      : `오늘 남은 수량: ${st.count}개 (${hhmm(st.ts)} 기준)`;
+  });
+  async function saveStock(count) {
+    if (!Number.isInteger(count) || count < 0 || count > 999) { alert("0~999 사이 숫자를 넣어 주세요."); return; }
+    try { await set(ref(db, "cart/stock"), { count, ts: Date.now() }); $("stockInput").value = ""; }
+    catch (e) { alert("수량 저장 실패: " + e.message); }
+  }
+  $("stockSave").onclick = () => saveStock(Number($("stockInput").value === "" ? NaN : $("stockInput").value));
+  $("stockSold").onclick = () => saveStock(0);
+  // 판매(-1)·취소(+1) 때 자동 반영. 오늘 수량을 저장해 둔 경우에만 바꿔요.
+  async function bumpStock(delta) {
+    if (!todayStock(stockVal, Date.now())) return;
+    try {
+      await runTransaction(ref(db, "cart/stock"), (cur) => {
+        if (!todayStock(cur, Date.now())) return;            // undefined = 변경 안 함
+        return { count: Math.min(999, Math.max(0, cur.count + delta)), ts: Date.now() };
+      });
+    } catch (e) { addLog("수량 갱신 실패: " + e.message); }
+  }
+
+  // ───────── 공지 한 줄 (cart/notice) ─────────
+  onValue(ref(db, "cart/notice"), (snap) => {
+    const nt = todayNotice(snap.val(), Date.now());
+    $("noticeNow").textContent = nt ? `지금 공지: ${nt.text} (${hhmm(nt.ts)})` : "지금 공지: 없음";
+  });
+  $("noticeSave").onclick = async () => {
+    const text = $("noticeInput").value.trim().replace(/\s+/g, " ");
+    if (!text) { alert("공지 내용을 입력해 주세요."); return; }
+    try { await set(ref(db, "cart/notice"), { text: text.slice(0, 80), ts: serverTimestamp() }); $("noticeInput").value = ""; }
+    catch (e) { alert("공지 올리기 실패: " + e.message); }
+  };
+  $("noticeClear").onclick = async () => {
+    try { await remove(ref(db, "cart/notice")); }
+    catch (e) { alert("공지 내리기 실패: " + e.message); }
+  };
+
+  // ───────── 지금 갈 곳 추천 ─────────
+  let salesAll = [], recHasHere = false;
+  function renderRec() {
+    const here = lastFix && Date.now() - lastFix.t < FIX_MAX_AGE_MS ? lastFix : null;
+    recHasHere = !!here;
+    const r = recommendSpots(salesAll, { now: Date.now(), places: PLACES, here });
+    const box = $("rec");
+    box.replaceChildren();
+    const basis = document.createElement("p"); basis.className = "basis";
+    if (r.basis === "none") {
+      basis.textContent = "아직 판매 기록이 없어요. 판매 버튼을 누르면 기록이 쌓이면서 추천이 생겨요.";
+      box.appendChild(basis); return;
+    }
+    basis.textContent = r.basis === "window"
+      ? `${r.hour - r.windowH}~${r.hour + r.windowH}시 판매 기록 기준 (${r.days}일치)`
+      : `지금 시간대 기록이 적어서 전체 판매 기록 기준이에요 (${r.days}일치)`;
+    box.appendChild(basis);
+    if (!r.spots.length) {
+      const p = document.createElement("p"); p.textContent = "이름 붙은 장소 근처 판매 기록이 아직 없어요."; box.appendChild(p); return;
+    }
+    const ol = document.createElement("ol");
+    for (const s of r.spots) {
+      const li = document.createElement("li");
+      const b = document.createElement("b"); b.textContent = s.name;
+      const small = document.createElement("small");
+      const where = s.distM == null ? "" : s.distM < 40 ? " · 지금 여기예요!" : ` · 여기서 ${s.distM}m, 약 ${s.moveMin}분`;
+      small.textContent = `${s.qty}개 판매 (하루 평균 ${s.perDay}개)${where}`;
+      li.append(b, small); ol.appendChild(li);
+    }
+    box.appendChild(ol);
+  }
+  onValue(query(ref(db, "sales"), orderByChild("ts"), limitToLast(5000)), (snap) => {
+    salesAll = Object.values(snap.val() || {}).filter((s) =>
+      Number.isFinite(s.lat) && Number.isFinite(s.lng) && Number.isFinite(s.ts) && Number.isFinite(s.qty));
+    renderRec();
+  }, () => { $("rec").textContent = "판매 기록을 불러오지 못했어요."; });
+  setInterval(renderRec, 60000);
+
+  // ───────── 요청이 몰린 곳 (최근 30분) ─────────
+  let reqAll = [];
+  function renderReqCard() {
+    const here = lastFix && Date.now() - lastFix.t < FIX_MAX_AGE_MS ? lastFix : null;
+    const r = summarizeRequests(reqAll, { now: Date.now(), places: PLACES, here });
+    const box = $("reqCard");
+    box.replaceChildren();
+    const head = document.createElement("p"); head.className = "basis";
+    head.textContent = r.total ? `최근 30분 요청 ${r.total}건` : "최근 30분 동안 들어온 요청이 없어요.";
+    box.appendChild(head);
+    if (!r.total) return;
+    const ol = document.createElement("ol");
+    for (const g of r.groups.slice(0, 3)) {
+      const li = document.createElement("li");
+      const b = document.createElement("b"); b.textContent = g.name;
+      const small = document.createElement("small");
+      const where = g.distM == null ? "" : g.distM < 40 ? " · 지금 여기예요!" : ` · 여기서 ${g.distM}m, 약 ${g.moveMin}분`;
+      const going = g.going ? ` · 가는 중 ${g.going}건` : "";
+      small.textContent = `요청 ${g.count}건 (마지막 ${g.lastMin}분 전)${going}${where}`;
+      // 이 장소의 요청 전체에 상태를 알려요. 고객 화면에 바로 안내가 떠요.
+      const acts = document.createElement("div"); acts.className = "acts";
+      for (const [status, label, cls] of [["going", "가는 중", "go"], ["done", "도착", "done"], ["cannot", "못 가요", "no"]]) {
+        const btn = document.createElement("button"); btn.type = "button"; btn.className = cls; btn.textContent = label;
+        btn.onclick = () => setReqStatus(g, status, label);
+        acts.appendChild(btn);
+      }
+      li.append(b, small, acts); ol.appendChild(li);
+    }
+    box.appendChild(ol);
+  }
+  async function setReqStatus(g, status, label) {
+    if (status === "cannot" && !confirm(`${g.name} 요청 ${g.count}건에 "못 가요"를 알릴까요?`)) return;
+    const changes = {};
+    for (const k of g.keys) { changes[`requests/${k}/status`] = status; changes[`requests/${k}/statusTs`] = serverTimestamp(); }
+    try { await update(ref(db), changes); addLog(`${g.name} 요청 ${g.count}건 → ${label}`); }
+    catch (e) { alert("요청 상태를 바꾸지 못했어요: " + e.message); }
+  }
+  onValue(query(ref(db, "requests"), orderByChild("ts"), limitToLast(300)), (snap) => {
+    reqAll = Object.entries(snap.val() || {}).map(([key, v]) => ({ ...v, key }))
+      .filter((v) => Number.isFinite(v.lat) && Number.isFinite(v.lng) && Number.isFinite(v.ts));
+    renderReqCard();
+  }, () => { $("reqCard").textContent = "요청을 불러오지 못했어요."; });
+  setInterval(renderReqCard, 30000);
+  $("consent").onchange = render;
+
+  $("login").onclick = async () => {
+    try { await signInWithEmailAndPassword(auth, $("email").value, $("pw").value); }
+    catch (e) { alert("로그인 실패: " + e.code); }
+  };
+  onAuthStateChanged(auth, (u) => { $("loginBox").hidden = !!u; $("ctrl").hidden = !u; render(); });
+
+  const distM = (a, b) => {        // 두 좌표 사이 거리(m), 하버사인 공식
+    const R = 6371000, r = Math.PI / 180;
+    const dLat = (b.lat - a.lat) * r, dLng = (b.lng - a.lng) * r;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  };
+  const B = CAMPUS_BOUNDS;
+  const inCampus = (p) => p.lat > B.minLat && p.lat < B.maxLat && p.lng > B.minLng && p.lng < B.maxLng;
+
+  async function onPos(pos) {
+    const { latitude: lat, longitude: lng, accuracy: acc, speed } = pos.coords;
+    const now = Date.now();
+    const p = { lat, lng };
+    log(`위도 ${lat.toFixed(6)}\n경도 ${lng.toFixed(6)}\n정확도 ±${acc.toFixed(0)}m`);
+
+    if (acc > MAX_ACCURACY_M) { addLog("정확도 낮음 → 건너뜀"); return; }
+    if (!inCampus(p)) { addLog("캠퍼스 밖 → 전송 안 함"); return; }
+    lastFix = { lat, lng, t: now };
+    if (!recHasHere) { renderRec(); renderReqCard(); }   // 첫 위치가 잡히면 추천·요청에 거리를 붙여요
+    if (now - lastSent < MIN_INTERVAL_MS) return;
+    lastSent = now;
+
+    try {
+      await set(ref(db, "cart/live"), { lat, lng, acc, speed: speed ?? 0, ts: serverTimestamp(), status: "open" });
+      if (!last || distM(last, p) >= MIN_MOVE_M) {
+        const point = push(ref(db, "cart/trail"), { lat, lng, ts: serverTimestamp() });
+        trailKeys.push(point.key);
+        await point;
+        last = p;
+        while (trailKeys.length > MAX_TRAIL) remove(ref(db, "cart/trail/" + trailKeys.shift()));
+      }
+      addLog("전송됨 " + new Date().toLocaleTimeString());
+    } catch (e) {
+      addLog("전송 실패: " + e.message);
+    }
+  }
+
+  async function keepAwake() {
+    try { wakeLock = await navigator.wakeLock?.request("screen"); } catch {}
+  }
+
+  $("start").onclick = async () => {
+    if (watchId !== null || busy) return;
+    busy = true; render();
+    try {
+      await remove(ref(db, "cart/trail"));      // 지난 경로 삭제 후 새로 시작
+      trailKeys = []; last = null; lastSent = 0; lastFix = null; saleKeys = []; saleQty = 0;
+      watchId = navigator.geolocation.watchPosition(onPos,
+        (e) => log("위치 오류: " + e.message),
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
+      keepAwake();
+      log("운행 시작. 위치를 기다리는 중…");
+    } catch (e) {
+      log("운행 시작 실패: " + e.message + "\n(로그인 계정, 보안 규칙, 네트워크를 확인하세요)");
+    } finally {
+      busy = false; render();
+    }
+  };
+
+  $("stop").onclick = async () => {
+    if (watchId === null || busy) return;
+    busy = true; render();
+    navigator.geolocation.clearWatch(watchId);  // 전송은 먼저 멈추고
+    try {
+      await update(ref(db, "cart/live"), { status: "closed" });
+      watchId = null;
+      wakeLock?.release(); wakeLock = null;
+      log("운행 종료");
+    } catch (e) {
+      // 종료 표시가 서버에 안 올라갔으면 다시 누를 수 있게 운행 중 상태로 둬요
+      log("운행 종료 표시 실패: " + e.message + "\n위치 전송은 멈췄어요. 네트워크 확인 후 다시 눌러 주세요.");
+    } finally {
+      busy = false; render();
+    }
+  };
+
+  document.addEventListener("visibilitychange", () => {
+    if (watchId !== null && document.visibilityState === "visible") keepAwake();
+  });
+}
+</script>
+</body>
+</html>

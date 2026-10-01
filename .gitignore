@@ -1,0 +1,8 @@
+# Netlify CLI local state (not part of the site)
+.netlify/
+
+# OS / editor junk
+Thumbs.db
+desktop.ini
+.DS_Store
+node_modules/

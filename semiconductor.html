@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>반도체소자 · AI with Danny</title>
+<meta name="description" content="반도체소자 강의노트 1~18을 초등학교 5학년 눈높이로 풀고, 핵심 수식·그림·현업 포인트·AI 활용까지 정리한 학습 노트">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#03060A;--panel:#07101A;--panel-2:#0A1622;--line:#123241;--line-hi:#1E5A6E;
+  --cyan:#6FE6FF;--cyan-mid:#2FB8D6;--cyan-dim:#0F4452;--text:#DCF7FF;--soft:#86AEBB;
+  --orange:#FF9D3F;--orange-dim:#3A1F08;
+  --glow:0 0 6px rgba(111,230,255,.55),0 0 18px rgba(111,230,255,.22);
+  --glow-o:0 0 6px rgba(255,157,63,.55),0 0 18px rgba(255,157,63,.2);
+  --display:"Orbitron","IBM Plex Sans KR",system-ui,sans-serif;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.75;padding-inline:16px;padding-block:0 72px;word-break:keep-all;overflow-wrap:anywhere}
+a{color:var(--cyan)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+
+.hero{position:relative;max-width:1080px;margin:0 auto;padding-block:40px 120px;overflow:hidden;isolation:isolate}
+.hero::before{content:"";position:absolute;left:-50%;right:-50%;bottom:-40px;height:200px;z-index:-1;
+  background-image:linear-gradient(var(--cyan-dim) 1px,transparent 1px),linear-gradient(90deg,var(--cyan-dim) 1px,transparent 1px);
+  background-size:48px 48px;transform:perspective(320px) rotateX(62deg);transform-origin:bottom center;
+  mask-image:linear-gradient(to top,#000 20%,transparent 95%);-webkit-mask-image:linear-gradient(to top,#000 20%,transparent 95%);
+  animation:gridmove 6s linear infinite}
+@keyframes gridmove{from{background-position:0 0}to{background-position:0 48px}}
+.homebtn{display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;border:1px solid var(--line-hi);color:var(--cyan);font:500 13px var(--sans);padding:6px 14px;text-decoration:none}
+.homebtn:hover{border-color:var(--cyan);box-shadow:var(--glow)}
+.sys{font-family:var(--display);font-size:12px;letter-spacing:.28em;color:var(--orange);text-shadow:var(--glow-o)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(36px,7vw,72px);line-height:1.1;letter-spacing:.02em;margin:16px 0 12px}
+h1 b{font-weight:900;color:var(--orange);text-shadow:var(--glow-o)}
+.kicker{font-size:clamp(17px,2.4vw,22px);font-weight:300;margin:0 0 14px;text-wrap:balance}
+.kicker b{font-weight:600;color:var(--cyan)}
+.lede{max-width:66ch;color:var(--soft);font-size:16px;margin:0}
+.legend{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px;font-size:13px}
+.legend span{border:1px solid var(--line-hi);background:rgba(7,16,26,.75);padding:5px 12px}
+
+.shell{max-width:1080px;margin:-80px auto 0;position:relative}
+.notice{border:1px solid var(--line-hi);background:var(--panel);padding:14px 18px;font-size:14px;color:var(--soft);max-width:80ch}
+.notice b{color:var(--text)}
+.toc-h{margin:28px 0 10px;font-family:var(--display);font-size:12px;letter-spacing:.26em;color:var(--soft)}
+.toc{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;list-style:none;margin:0;padding:0}
+.toc a{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:center;border:1px solid var(--line);background:var(--panel);padding:8px 10px;text-decoration:none;color:var(--text);font-size:14px;transition:border-color .2s}
+.toc a:hover{border-color:var(--cyan-mid)}
+.toc a i{font:700 12px var(--display);font-style:normal;color:var(--cyan);text-align:center}
+.toc a.sup i{color:var(--orange)}
+.bar{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin:28px 0 14px}
+.bar p{margin:0;color:var(--soft);font-size:15px}
+.ghost{cursor:pointer;font:500 13px var(--sans);color:var(--cyan);background:transparent;border:1px solid var(--line-hi);padding:7px 14px}
+.ghost:hover{border-color:var(--cyan)}
+
+.archive{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+details.ch,.body{min-width:0}
+details.ch{border:1px solid var(--line);background:var(--panel);scroll-margin-top:16px}
+details.ch[open]{border-color:var(--line-hi)}
+details.ch > summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:16px;align-items:center;padding:16px 18px}
+details.ch > summary::-webkit-details-marker{display:none}
+.sec{font-family:var(--display);font-weight:900;font-size:24px;color:var(--cyan-dim);text-align:center;line-height:1;transition:color .2s,text-shadow .2s}
+.sec small{display:block;font-size:8px;letter-spacing:.3em;font-weight:500;margin-bottom:4px;color:var(--soft)}
+details.ch[open] .sec{color:var(--cyan);text-shadow:var(--glow)}
+details.ch.sup .sec{color:#6B4A22}
+details.ch.sup[open] .sec{color:var(--orange);text-shadow:var(--glow-o)}
+.sum-t{font-size:18px;font-weight:600;line-height:1.4}
+.sum-s{display:block;font-size:14px;color:var(--soft);font-weight:400}
+.badge{font:700 10px var(--display);letter-spacing:.14em;border:1px solid var(--orange);color:var(--orange);padding:2px 7px;margin-left:8px;vertical-align:middle;white-space:nowrap}
+.chev{width:12px;height:12px;border-right:2px solid var(--soft);border-bottom:2px solid var(--soft);transform:rotate(45deg);transition:transform .2s;margin-right:6px}
+details.ch[open] .chev{transform:rotate(-135deg);border-color:var(--cyan)}
+.body{padding:4px 22px 26px;border-top:1px solid var(--line)}
+@media (max-width:520px){details.ch > summary{grid-template-columns:44px minmax(0,1fr) auto;gap:12px}.sec{font-size:18px}.body{padding-inline:14px}}
+
+.blk{padding-block:16px;border-top:1px dashed var(--line)}
+.blk:first-child{border-top:0}
+.blk h3{font-size:15px;margin:0 0 8px;font-weight:600;color:var(--cyan);display:flex;gap:8px;align-items:center}
+.blk h3 .k{font:700 10px var(--display);letter-spacing:.22em;color:var(--soft);border:1px solid var(--line-hi);padding:2px 7px}
+.blk p,.blk ul,.blk ol{max-width:76ch;margin:6px 0}
+.blk ul,.blk ol{padding-left:22px}
+.blk li{margin:4px 0}
+.blk li::marker{color:var(--cyan-mid)}
+.blk li ul{margin-top:2px}
+.easy{border-left:2px solid var(--cyan-mid);padding:4px 0 4px 14px}
+mark{background:none;color:var(--cyan);border-bottom:1px solid var(--cyan-mid);padding:0 1px}
+strong{color:var(--text);font-weight:600}
+.star{color:var(--orange)}
+code{font-family:var(--mono);font-size:.86em;color:var(--cyan);background:rgba(111,230,255,.08);padding:1px 5px}
+.ex{color:var(--soft)}
+.ex b{color:var(--orange);font-weight:600}
+pre{background:#01040A;color:#CFEFF8;border:1px solid var(--line-hi);padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.55;max-width:100%;margin:10px 0}
+.tbl{overflow-x:auto;margin:10px 0;max-width:100%}
+table{border-collapse:collapse;width:100%;min-width:380px;font-size:15px;border:1px solid var(--line)}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--cyan);font-weight:600;letter-spacing:.06em;background:var(--panel-2)}
+tr:last-child td{border-bottom:0}
+.point{border-left:2px solid var(--cyan);background:rgba(111,230,255,.06);padding:10px 14px;max-width:78ch;font-size:15px}
+.point.ai{border-left-color:var(--orange);background:rgba(255,157,63,.07)}
+.point ul{margin:4px 0;padding-left:20px}
+.point b.tag{font-family:var(--display);color:var(--cyan);font-size:10px;letter-spacing:.24em;display:block;margin-bottom:4px}
+.point.ai b.tag{color:var(--orange)}
+.supnote{border:1px dashed var(--orange);color:var(--orange);background:var(--orange-dim);padding:10px 14px;font-size:14px;margin:14px 0 4px;max-width:78ch}
+
+.finale{margin-top:34px;border:1px solid var(--cyan);padding:22px 24px;box-shadow:inset 0 0 30px rgba(111,230,255,.07)}
+.finale h2{margin:0 0 10px;font-size:20px}
+.finale .k{font-family:var(--display);font-size:11px;letter-spacing:.26em;color:var(--cyan)}
+.formulas{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;list-style:none;padding:0;margin:12px 0 0}
+.formulas li{border:1px solid var(--line-hi);padding:10px 12px;background:var(--panel)}
+.formulas li i{display:block;font:700 10px var(--display);font-style:normal;letter-spacing:.2em;color:var(--soft);margin-bottom:4px}
+.fix{margin-top:18px;border:1px solid var(--line);background:var(--panel);padding:16px 18px;font-size:14px;color:var(--soft)}
+.fix b{color:var(--text)}
+.fix ul{margin:6px 0 0;padding-left:20px}
+.flash{animation:flash 2.4s ease-out}
+@keyframes flash{0%,45%{background:rgba(255,157,63,.18);box-shadow:inset 3px 0 0 var(--orange)}100%{background:transparent;box-shadow:none}}
+.foot{max-width:1080px;margin:48px auto 0;font-family:var(--display);font-size:10px;letter-spacing:.3em;color:var(--cyan-dim);text-align:center}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <a class="homebtn" href="./">← AI with Danny 홈</a>
+  <div class="sys">// SEMICONDUCTOR DEVICES · LECTURE NOTES</div>
+  <h1>반도체<b>소자</b></h1>
+  <p class="kicker">결정 구조부터 MOSFET까지, <b>강의노트 1~18을 초등학교 5학년 눈높이로</b></p>
+  <p class="lede">노트마다 쉬운 설명, 노트에 나온 핵심 수식과 그림 해설, 현업에서 실제로 쓰는 포인트, 그리고 AI가 반도체 소자 엔지니어링에서 풀 수 있는 문제를 함께 정리했어요. 예제 계산은 모두 다시 검산했어요.</p>
+  <div class="legend" aria-label="구성">
+    <span>쉽게 말하면</span><span>핵심 수식</span><span>노트 그림 읽기</span><span>현업 포인트</span><span>AI가 풀 수 있는 문제</span>
+  </div>
+</header>
+
+<main class="shell">
+  <div class="notice">
+    <b>자료 범위:</b> 받은 PDF 18개(Introduction 1개 + 강의노트 17개, Note 17은 두 버전)를 정리했어요. 받은 파일에 <b>Note 10과 Note 13은 없어서</b> 교과서(Neamen) 흐름에 맞춰 보충했고, <span class="star">[보충]</span>이라고 표시했어요. Note 17은 두 버전을 합쳤어요.
+  </div>
+
+  <div class="toc-h">바로가기</div>
+  <ol class="toc">
+    <li><a href="#n1"><i>01</i>결정 구조</a></li>
+    <li><a href="#n2"><i>02</i>에너지 밴드</a></li>
+    <li><a href="#n3"><i>03</i>상태밀도·페르미 함수</a></li>
+    <li><a href="#n4"><i>04</i>평형 캐리어 (1)</a></li>
+    <li><a href="#n5"><i>05</i>평형 캐리어 (2)</a></li>
+    <li><a href="#n6"><i>06</i>드리프트·이동도</a></li>
+    <li><a href="#n7"><i>07</i>확산·아인슈타인</a></li>
+    <li><a href="#n8"><i>08</i>과잉 캐리어·트랩</a></li>
+    <li><a href="#n9"><i>09</i>pn 접합 (평형)</a></li>
+    <li><a class="sup" href="#n10"><i>10</i>역바이어스 [보충]</a></li>
+    <li><a href="#n11"><i>11</i>순방향 바이어스</a></li>
+    <li><a href="#n12"><i>12</i>다이오드 방정식</a></li>
+    <li><a class="sup" href="#n13"><i>13</i>쇼트키 장벽 [보충]</a></li>
+    <li><a href="#n14"><i>14</i>오믹 컨택</a></li>
+    <li><a href="#n15"><i>15</i>MOS 커패시터</a></li>
+    <li><a href="#n16"><i>16</i>V_FB·일함수</a></li>
+    <li><a href="#n17"><i>17</i>V_T·C–V</a></li>
+    <li><a href="#n18"><i>18</i>MOSFET I–V</a></li>
+  </ol>
+
+  <div class="bar">
+    <p>노트 제목을 누르면 펼쳐져요.</p>
+    <button class="ghost" id="toggleall" type="button">모두 펼치기</button>
+  </div>
+
+  <div class="archive">
+
+  <!-- 1 -->
+  <details class="ch" id="n1">
+    <summary><span class="sec"><small>NOTE</small>01</span><span class="sum-t">결정 구조<span class="sum-s">비정질·다결정·단결정, 단위셀, 밀러 지수, 다이아몬드 구조, 결함, 초크랄스키 성장</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy">반도체는 전기가 <mark>"적당히"</mark> 통하는 물질이에요. 금속처럼 너무 잘 통하지도, 유리처럼 아예 막히지도 않아서 우리가 흐름을 조절할 수 있어요. 반도체 원자들은 <strong>레고 블록처럼 똑같은 모양이 반복되며</strong> 쌓여 있어야 성능이 좋아요.</p>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기</h3>
+        <ul>
+          <li><strong>Figure 1.1: 고체의 세 종류</strong>
+            <ul>
+              <li>(a) 비정질: 원자가 제멋대로 흩어진 모래더미 같아요.</li>
+              <li>(b) 다결정: 작은 레고 덩어리들이 서로 다른 방향으로 붙어 있어요. 덩어리 사이 경계(grain boundary)에서 전자가 걸려 넘어져요.</li>
+              <li>(c) 단결정: 전체가 하나의 완벽한 레고예요. <strong>반도체 칩은 반드시 단결정으로 만들어요.</strong></li>
+            </ul></li>
+          <li><strong>Figure 1.5: 입방 격자 3형제.</strong> sc(모서리에만 원자), bcc(가운데에 1개 더), fcc(각 면 가운데에 더)</li>
+          <li><strong>Figure 1.11: 다이아몬드 구조.</strong> Si 원자 하나가 이웃 4개와 손을 잡은 <strong>정사면체</strong> 모양이에요. 단위셀에 원자가 <strong>8개</strong> 들어 있어요(1×4 + ½×6 + ⅛×8 = 8).</li>
+          <li><strong>Figure 1.14: GaAs.</strong> 다이아몬드와 모양은 같지만 원자가 두 종류라서 <strong>징크블렌드(zincblende)</strong> 구조라고 불러요.</li>
+          <li><strong>초크랄스키 그림:</strong> 녹인 실리콘에 씨앗 결정(seed)을 담갔다가 천천히 끌어올리면 큰 단결정 기둥(<strong>잉곳</strong>)이 생겨요. 이걸 얇게 자른 것이 <strong>웨이퍼</strong>예요.</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li>격자 위치 벡터 <code>r = p·a + q·b + s·c</code>: 단위셀을 p, q, s번 옮기면 모든 원자 위치를 찾을 수 있어요.</li>
+          <li>부피 밀도 = <code>단위셀 속 원자 수 / 단위셀 부피</code>
+            <ul><li class="ex">노트 Ex 1.1 (fcc, a = 4.25 Å): 원자 수 = ½×6 + ⅛×8 = <b>4개</b>, 밀도 = 4/(4.25×10⁻⁸)³ ≈ <b>5.21×10²² cm⁻³</b></li></ul></li>
+          <li><strong>밀러 지수</strong>(결정면의 이름표): 면이 축과 만나는 절편 → 역수 → 정수로 바꾸기
+            <ul><li class="ex">예: 절편 (3, 2, 1) → (⅓, ½, 1) → <b>(236)면</b></li></ul></li>
+          <li>결함: 빈자리(vacancy), 틈새 원자(interstitial), 프렌켈 결함, 선결함(dislocation). 불순물은 치환형과 틈새형이 있고, <strong>일부러 넣는 것을 도핑</strong>이라고 해요.</li>
+        </ul>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li>현업은 300 mm <strong>(100)면</strong> 웨이퍼를 쓰고, 방향은 노치(notch)로 표시해요. 노트 사진의 150 mm 웨이퍼는 flat, 200 mm 웨이퍼는 notch로 표시돼 있어요.</li>
+        <li>(100)면을 쓰는 이유는 산화막과 만나는 계면 결함(Dit)이 가장 적어서 MOSFET에 유리하기 때문이에요.</li>
+        <li>결정 결함은 곧 <strong>수율 손실</strong>이에요. COP(결정 유래 미세 결함), 산소 석출, 선결함 관리가 웨이퍼 품질의 핵심이에요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>웨이퍼 검사 이미지(SEM, 광학)에서 <strong>결함 자동 분류</strong>(CNN 기반 ADC)</li>
+        <li>잉곳 성장 조건(인상 속도, 회전, 온도 기울기)으로 <strong>산소 농도·결함 밀도 예측</strong></li>
+        <li>원자 단위 계산(DFT)을 머신러닝 퍼텐셜로 크게 가속해서 신소재·결함 거동 탐색</li>
+        <li>풀기 어려운 점: 결함 데이터가 희귀하고 라벨이 한쪽으로 치우쳐 있어 학습 데이터 확보가 병목이에요.</li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 2 -->
+  <details class="ch" id="n2">
+    <summary><span class="sec"><small>NOTE</small>02</span><span class="sum-t">에너지 밴드와 캐리어 모델링<span class="sum-s">가전자대·전도대·밴드갭, 전자와 정공, 유효질량, 진성 반도체, 도핑</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy">원자 하나일 때 전자는 정해진 계단(에너지 준위)에만 설 수 있어요. 원자가 수없이 모여 결정이 되면 계단이 촘촘해져서 <strong>띠(band)</strong>가 돼요.</p>
+        <ul>
+          <li><strong>가전자대</strong>: 아래 띠. 전자로 꽉 찬 주차장이라 움직일 수 없어요.</li>
+          <li><strong>전도대</strong>: 위 띠. 텅 빈 고속도로예요.</li>
+          <li><strong>밴드갭(Eg)</strong>: 두 띠 사이의 빈 틈. 전자가 이 틈을 뛰어넘어야 전기가 흘러요.</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기</h3>
+        <ul>
+          <li><strong>Si 밴드 형성 그림:</strong> 원자 사이 거리가 줄면 3s와 3p 준위가 섞이고, 평형 거리에서 <strong>아래 4N개 상태(꽉 참)와 위 4N개 상태(텅 빔)</strong>로 나뉘어요.</li>
+          <li><strong>Figure 2.8: 부도체·반도체·금속</strong>
+            <ul>
+              <li>부도체: Eg가 넓어요. SiO₂는 노트에 ~8 eV로 적혀 있는데 일반적으로는 약 9 eV를 많이 써요. 다이아몬드 ~5 eV.</li>
+              <li>반도체: Eg가 적당해요(<strong>Si 1.12 eV</strong>, GaAs 1.42 eV, Ge 0.66 eV). 열만으로도 조금 들떠요.</li>
+              <li>금속: 띠가 겹치거나 반만 차 있어요.</li>
+            </ul></li>
+          <li><strong>Figure 3.13:</strong> 결합 하나가 끊어지면 자유전자(−)와 <strong>정공(hole, +)</strong>이 <strong>쌍으로</strong> 생겨요. 정공은 빈자리가 옮겨 다니는 건데, + 전하가 움직이는 것처럼 보여요.</li>
+          <li><strong>Figure 2.10 / 2.13: 도핑.</strong> 5족(P, As)은 여분 전자가 있어서 <strong>도너(n형)</strong>, 3족(B)은 전자가 모자라서 <strong>억셉터(p형)</strong>가 돼요. 결합 에너지가 ~0.045 eV로 아주 작아서 상온에서 거의 다 풀려나요.</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li>진공 속 전자: <code>F = −qE = m₀·dv/dt</code></li>
+          <li>결정 속 전자: <code>F = −qE = mₙ*·dv/dt</code> → 결정 안의 복잡한 힘을 <strong>유효질량 m*</strong> 하나로 묶어요.</li>
+          <li>유효질량(Table 2.1, 상태밀도 유효질량): Si는 mₙ*/m₀ = 1.18, mₚ*/m₀ = 0.81. GaAs 전자는 0.066으로 <strong>가벼워서 빨라요</strong>.
+            <ul><li class="ex">Note 4의 Table 4.1(1.08/0.56)과 값이 다른 건 교재(Pierret vs Neamen)마다 쓰는 값이 달라서예요.</li></ul></li>
+          <li>진성 반도체: <code>n = p = nᵢ</code>, Si는 nᵢ ≈ 10¹⁰ cm⁻³
+            <ul><li class="ex">Si 결합 수 약 10²³ cm⁻³ 중 <b>10¹³개 중 1개꼴</b>로만 끊어져 있다는 뜻이에요.</li></ul></li>
+        </ul>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li><strong>밴드갭이 소자의 성격을 정해요.</strong> 전력 반도체는 넓은 밴드갭의 SiC(~3.3 eV)·GaN(3.4 eV), 고속 RF는 m*가 작은 III-V를 써요.</li>
+        <li>로직에서는 <strong>응력(Strain)</strong>으로 유효질량과 산란을 바꿔 이동도를 높여요. 90 nm 세대 이후 표준 기술이에요.</li>
+        <li>도펀트는 n형 P/As, p형 B가 업계 표준이에요(노트 Table 2.2 화살표 표시).</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>수만 개 후보 중 원하는 밴드갭·유효질량을 가진 <strong>신소재 스크리닝</strong>(재료 정보학, GNN)</li>
+        <li>DFT 결과를 학습한 모델로 <strong>밴드 구조 즉시 예측</strong> → 채널 재료 탐색 시간 단축</li>
+        <li>도펀트·모재 조합의 활성화 에너지를 예측해 <strong>도핑 공정 후보</strong>를 좁히기</li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 3 -->
+  <details class="ch" id="n3">
+    <summary><span class="sec"><small>NOTE</small>03</span><span class="sum-t">상태밀도(DOS)와 페르미 함수<span class="sum-s">의자 개수 × 앉을 확률 = 실제 전자 수, 볼츠만 근사, 3kT 규칙</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <ul class="easy">
+          <li><strong>상태밀도 g(E)</strong>: 에너지 층마다 전자가 앉을 <mark>의자가 몇 개 있는지</mark></li>
+          <li><strong>페르미 함수 f(E)</strong>: 그 의자에 <mark>실제로 전자가 앉아 있을 확률</mark></li>
+          <li>둘을 곱하면 <strong>실제 전자 수</strong>가 나와요.</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li><code>g_c(E) = 4π(2mₙ*)^{3/2}/h³ · √(E − E_c)</code>: 밴드 끝에서 0으로 시작해 <strong>√E 모양으로 증가</strong></li>
+          <li><strong>페르미-디랙 함수</strong>: <code>f(E) = 1 / [1 + exp((E − E_F)/kT)]</code>
+            <ul>
+              <li>E = E_F이면 f = <strong>½</strong> (페르미 준위 = "반반 확률"인 에너지)</li>
+              <li>E ≥ E_F + 3kT이면 <code>f ≈ exp[−(E − E_F)/kT]</code> (<strong>볼츠만 근사</strong>)</li>
+            </ul></li>
+          <li class="ex">노트 예제: 볼츠만 근사 오차가 5%가 되는 지점은 <code>E − E_F = kT·ln(1/0.05) = 2.996kT</code> ≈ <b>3kT</b></li>
+          <li>상온 kT = <strong>0.0259 eV</strong>, 3kT = 0.0777 eV. Si 밴드갭(1.12 eV)보다 훨씬 작아요.</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기</h3>
+        <ul>
+          <li><strong>Figure 2.15:</strong> T → 0 K에서 f(E)는 <strong>계단 모양</strong>(E_F 아래 1, 위 0). T &gt; 0이면 E_F 주변 ±3kT 폭에서 <strong>부드럽게 뭉개지고</strong>, 온도가 높을수록 더 넓게 퍼져요.</li>
+          <li><strong>Figure 3.35:</strong> E_F + 3kT 위쪽에서는 볼츠만 근사(점선)가 페르미-디랙(실선)과 거의 겹쳐요. 그래서 대부분 간단한 지수식으로 계산할 수 있어요.</li>
+        </ul>
+<pre>f(E)
+ 1 ─────╮            T=0K : 계단
+        │╲           T>0  : ±3kT 폭에서 완만
+ ½ ·····│·●·····
+        │   ╲___
+ 0 ─────┴───────── E
+      E_F-3kT  E_F  E_F+3kT</pre>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li>TCAD는 캐리어 농도를 DOS × f(E)로 계산해요.</li>
+        <li>소스/드레인·컨택처럼 도핑이 아주 높은 <strong>축퇴 영역</strong>에서는 볼츠만 근사가 틀려서 페르미-디랙 통계를 써야 해요.</li>
+        <li>온도가 오르면 f(E) 꼬리가 길어져 <strong>누설 전류가 지수적으로 증가</strong>해요. 서버·차량용 반도체의 고온 신뢰성 문제예요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>TCAD의 무거운 통계 계산을 <strong>신경망 대리모델(surrogate)</strong>로 대체해 시뮬레이션 가속</li>
+        <li>온도별 누설 데이터를 학습해 <strong>고온 동작 한계·수명 예측</strong></li>
+        <li>노트 숙제(온도별 f(E) 그래프)처럼 물리 모델 코드를 AI 코딩 도구로 빠르게 작성·검증</li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 4 -->
+  <details class="ch" id="n4">
+    <summary><span class="sec"><small>NOTE</small>04</span><span class="sum-t">평형 상태의 캐리어 분포 (1)<span class="sum-s">n₀·p₀ 공식, 유효 상태밀도, nᵢ, 질량작용 법칙 n₀p₀ = nᵢ², 축퇴 반도체</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy"><strong>평형</strong>은 전압·빛·온도차 같은 외부 방해가 없어서 <mark>시간이 지나도 아무것도 변하지 않는 "쉬는 상태"</mark>예요. 이때 전자와 정공이 몇 개인지 계산하는 공식을 배워요.</p>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식 (가장 중요한 노트 중 하나)</h3>
+        <ul>
+          <li><strong>전자 농도</strong>: <code>n₀ = ∫ g_c(E)·f(E) dE = N_c · exp[−(E_c − E_F)/kT]</code></li>
+          <li><strong>정공 농도</strong>: <code>p₀ = N_v · exp[−(E_F − E_v)/kT]</code></li>
+          <li>유효 상태밀도 <code>N_c = 2(2π mₙ* kT/h²)^{3/2}</code>. Si: N_c = 2.8×10¹⁹, N_v = 1.04×10¹⁹ cm⁻³ (Table 4.1)</li>
+          <li><code>nᵢ² = N_c·N_v·exp(−E_g/kT)</code>. Si: nᵢ = <strong>1.5×10¹⁰ cm⁻³</strong> (Table 4.2)</li>
+          <li>nᵢ로 쓴 형태: <code>n₀ = nᵢ·exp[(E_F − E_Fi)/kT]</code>, <code>p₀ = nᵢ·exp[(E_Fi − E_F)/kT]</code></li>
+          <li><span class="star">★</span> <strong>질량작용 법칙: <code>n₀·p₀ = nᵢ²</code></strong> (노트에서 별표 친 식)</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기</h3>
+        <ul>
+          <li><strong>Figure 2.16:</strong> 밴드 → 상태밀도 → 페르미 함수 → 실제 캐리어 분포 순서의 네 칸 그림이에요.
+            <ul><li>n형: E_F가 E_c 가까이 → 전자가 많아요.</li><li>진성: E_F가 가운데.</li><li>p형: E_F가 E_v 가까이 → 정공이 많아요.</li>
+            <li>핵심: <strong>E_F의 위치가 곧 캐리어 농도의 지표</strong>예요.</li></ul></li>
+          <li><strong>Figure 4.11: 축퇴 반도체.</strong> 도핑이 너무 많아 E_F가 밴드 <strong>안쪽으로</strong> 들어간 상태예요. 볼츠만 근사가 틀려요.</li>
+        </ul>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li><code>n·p = nᵢ²</code>는 현업 엔지니어가 <strong>암산할 때 쓰는 공식</strong>이에요. 도핑을 10배 늘리면 소수 캐리어는 10배 줄어요.</li>
+        <li>nᵢ는 온도에 따라 지수적으로 커져요(∝ T^{3/2}·exp(−E_g/2kT)). 그래서 <strong>고온 누설과 DRAM 리프레시 특성</strong>에 직결돼요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>도핑 분포 측정값(SIMS)에서 캐리어 분포와 E_F를 거꾸로 추정하는 <strong>역문제</strong>를 빠르게 풀기</li>
+        <li>웨이퍼의 저항·도핑 맵을 학습해 <strong>공정 산포 원인(장비, 챔버) 추적</strong></li>
+        <li>물리식을 제약 조건으로 넣은 신경망(<strong>PINN</strong>)으로 적은 데이터에서도 물리적으로 맞는 예측</li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 5 -->
+  <details class="ch" id="n5">
+    <summary><span class="sec"><small>NOTE</small>05</span><span class="sum-t">평형 상태의 캐리어 분포 (2)<span class="sum-s">완전 이온화, 동결, 보상 반도체, 전하 중성, E_F 위치, 온도 의존성</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <ul class="easy">
+          <li>넣은 도펀트가 <strong>모두 전자를 내놓았는지(완전 이온화)</strong>, <strong>추워서 얼어붙었는지(동결, freeze-out)</strong> 따져 봐요.</li>
+          <li>n형 도펀트와 p형 도펀트를 섞으면 서로의 효과를 깎아 먹어요. 이걸 <strong>보상</strong>이라고 해요.</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li><strong>전하 중성</strong>: <code>n₀ + N_a = p₀ + N_d</code> (완전 이온화 가정)</li>
+          <li><strong>n형 전자 농도</strong>: <code>n₀ = (N_d − N_a)/2 + √[((N_d − N_a)/2)² + nᵢ²]</code></li>
+          <li class="ex">노트 예제 (Si, N_d = 10¹⁶ cm⁻³): n₀ ≈ <b>10¹⁶ cm⁻³</b>, p₀ = nᵢ²/n₀ = <b>2.25×10⁴ cm⁻³</b> → 전자가 정공보다 약 <b>4.4×10¹¹배</b> 많아요.</li>
+          <li><strong>페르미 준위 위치</strong>: <code>E_c − E_F = kT·ln(N_c/n₀)</code>, <code>E_F − E_Fi = kT·ln(n₀/nᵢ)</code></li>
+          <li><strong>보상</strong>: N_d &gt; N_a이면 n형, N_d = N_a이면 진성 반도체처럼 행동해요.</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기 (Further reading: n–T 그래프)</h3>
+<pre>n/N_d
+ │            ┌──── 진성 영역 (n → nᵢ, 너무 뜨거움)
+ 1 ─ ─ ─ ┌────┘  ← 외인성 영역 (n ≈ N_d) : 약 150~450K, 소자가 일하는 구간
+ │      ╱
+ │    ╱ ← 동결 영역 (약 100K 이하, 도너가 전자를 못 놓음)
+ 0 ──┴──────────────── T</pre>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li>소자는 반드시 <strong>외인성 영역(n ≈ N_d)</strong>에서 동작하도록 설계해요. 차량용은 −40~150 °C 동작을 보장해야 해요.</li>
+        <li>반대 도펀트를 섞는 <strong>카운터 도핑</strong>은 웰·채널 V_T를 미세 조정하는 실제 기법이에요.</li>
+        <li>이온주입 후 <strong>활성화 어닐링</strong>이 부족하면 완전 이온화 가정이 깨져요. 측정 저항이 설계값과 어긋나는 흔한 원인이에요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>이온주입 조건(에너지, 도즈, 각도, 어닐) → <strong>최종 활성 도핑 분포 예측</strong></li>
+        <li>온도별 전기 특성 데이터로 <strong>동작 온도 한계 자동 판정</strong></li>
+        <li><strong>베이지안 최적화</strong>로 어닐 조건을 탐색해 실험(DOE) 횟수 절감</li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 6 -->
+  <details class="ch" id="n6">
+    <summary><span class="sec"><small>NOTE</small>06</span><span class="sum-t">캐리어 수송 (1): 드리프트와 이동도<span class="sum-s">v_d = μE, μ = eτ/m*, 드리프트 전류, 포논·불순물 산란</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy">전자가 움직이는 방법은 두 가지예요. ① <strong>드리프트</strong>: 전기장이라는 "바람"에 밀려서. ② <strong>확산</strong>: 붐비는 곳에서 한산한 곳으로 퍼져서. 전자는 달리다가 <mark>원자 진동(포논)</mark>이나 <mark>이온화된 불순물</mark>에 계속 부딪혀요. 부딪히면서도 얼마나 잘 달리는지가 <strong>이동도(μ)</strong>예요.</p>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li>드리프트 속도 <code>v_d = μ·E</code></li>
+          <li>이동도 <code>μ = e·τ_c / m*</code> (τ_c = 평균 충돌 간격) → <strong>m*가 작고 덜 부딪힐수록 빨라요.</strong></li>
+          <li>드리프트 전류 <code>J_drift = e(nμₙ + pμₚ)·E</code></li>
+        </ul>
+        <div class="tbl"><table>
+          <tr><th>Table 5.1 (300 K, 저도핑)</th><th>μₙ (cm²/V·s)</th><th>μₚ (cm²/V·s)</th></tr>
+          <tr><td>Si</td><td>1350</td><td>480</td></tr>
+          <tr><td>GaAs</td><td>8500</td><td>400</td></tr>
+          <tr><td>Ge</td><td>3900</td><td>1900</td></tr>
+        </table></div>
+        <p class="ex">노트 예제 (n-GaAs, N_d = 10¹⁶, E = 10 V/cm): J = 1.6×10⁻¹⁹ × 10¹⁶ × 8500 × 10 = <b>136 A/cm²</b> (노트 손필기의 "1360"은 오기이고 136 A/cm²가 맞아요.)</p>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기</h3>
+        <ul>
+          <li><strong>무작위 열운동 그림:</strong> 전기장이 없으면 지그재그로 움직여 알짜 이동이 0이에요. 전기장이 있으면 지그재그를 하면서도 한쪽으로 <strong>조금씩 흘러가요</strong>.</li>
+          <li><strong>Figure 5.2 (μ–T):</strong> 도핑이 낮으면 온도가 오를수록 μ가 <strong>감소</strong>(포논 산란, μ ∝ T^{−3/2}). 도핑이 높으면 불순물 산란(μ ∝ T^{3/2}/N)이 우세해 온도에 덜 민감해요.</li>
+          <li><strong>Figure 5.3 (μ–도핑):</strong> 도핑 10¹⁶ cm⁻³ 부근부터 줄기 시작해 <strong>10¹⁷ 이상에서 급격히</strong> 떨어져요. 항상 <strong>μₙ &gt; μₚ</strong>이고, GaAs의 μₙ이 가장 커요.</li>
+        </ul>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li><strong>이동도 = 트랜지스터 속도.</strong> PMOS는 낮은 μₚ를 SiGe 압축 응력으로 보완해요.</li>
+        <li>채널 도핑↑ → V_T 제어는 쉽지만 μ↓. 이 <strong>트레이드오프</strong> 때문에 FinFET·GAA는 채널을 <strong>거의 도핑하지 않고</strong> 게이트 금속 일함수로 V_T를 맞춰요.</li>
+        <li>실제 MOSFET에서는 표면 거칠기 산란과 속도 포화(v_sat ≈ 10⁷ cm/s)도 중요해요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>응력·채널 방향·두께별 <strong>이동도 모델 데이터 기반 보정</strong>(컴팩트 모델 파라미터 자동 추출)</li>
+        <li>수천 개 소자 측정 데이터에서 <strong>이동도 저하 원인(계면 결함, 식각 손상) 분류</strong></li>
+        <li>풀기 어려운 점: 나노 채널에서는 산란이 복잡하게 얽혀 결과를 설명할 수 있는 AI가 필요해요.</li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 7 -->
+  <details class="ch" id="n7">
+    <summary><span class="sec"><small>NOTE</small>07</span><span class="sum-t">캐리어 수송 (2): 전도도, 확산, 아인슈타인 관계<span class="sum-s">σ·ρ·R, Fick의 법칙, 전체 전류 4항, 불균일 도핑의 내부 전기장, D/μ = kT/e</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy">잉크 한 방울이 물에 퍼지듯, 캐리어는 <mark>농도 차이만 있어도</mark> 움직여 전류를 만들어요(Fick의 법칙). 신기하게도 "잘 퍼지는 정도(D)"와 "바람에 잘 밀리는 정도(μ)"는 <strong>하나의 식으로 연결</strong>돼요.</p>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li>전도도 <code>σ = e(nμₙ + pμₚ)</code>, 비저항 <code>ρ = 1/σ</code>, 저항 <code>R = ρL/A</code></li>
+          <li>확산 전류: 전자 <code>J_n,diff = eDₙ·dn/dx</code>, 정공 <code>J_p,diff = −eDₚ·dp/dx</code></li>
+          <li><span class="star">★</span> <strong>전체 전류(식 5.33)</strong>: <code>J = enμₙE + epμₚE + eDₙ(dn/dx) − eDₚ(dp/dx)</code> → 이 네 항이 반도체 전류의 전부예요.</li>
+          <li>불균일 도핑의 내부 전기장: <code>E_x = −(kT/e)·(1/N_d)·(dN_d/dx)</code></li>
+          <li><span class="star">★</span> <strong>아인슈타인 관계</strong>: <code>D/μ = kT/e</code> (상온 0.0259 V)</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기</h3>
+        <ul>
+          <li><strong>Figure 3.11:</strong> 1024개 입자가 시간마다 이웃 칸으로 반씩 나뉘며 퍼져요. 확산을 입자 수준에서 본 원리예요.</li>
+          <li><strong>Figure 5.11:</strong> 부호를 가장 많이 틀리는 곳! 전자는 농도가 높은 쪽 → 낮은 쪽으로 흐르지만 전하가 (−)라서 <strong>전류는 반대 방향</strong>이에요. 정공은 흐름과 전류 방향이 같아요.</li>
+        </ul>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li>TCAD가 푸는 기본 방정식이 바로 <strong>드리프트-확산 방정식 + 푸아송 방정식</strong>이에요.</li>
+        <li>면저항(Rs, 4-point probe)은 팹에서 도핑 공정을 날마다 확인하는 기본 항목이에요.</li>
+        <li>불균일 도핑이 만드는 내부 전기장은 BJT 베이스, 이미지센서 포토다이오드의 <strong>전하 수집 설계</strong>에 써요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>드리프트-확산 방정식을 <strong>신경 연산자(Neural Operator)</strong>로 학습해 준실시간 소자 시뮬레이션</li>
+        <li>공정 중 Rs 맵의 <strong>이상 패턴 실시간 탐지</strong>(SPC + 이상 탐지)</li>
+        <li>측정값과 시뮬레이션 차이를 자동으로 맞추는 <strong>TCAD 보정 자동화</strong></li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 8 -->
+  <details class="ch" id="n8">
+    <summary><span class="sec"><small>NOTE</small>08</span><span class="sum-t">비평형 과잉 캐리어<span class="sum-s">생성·재결합, 수명 τ, 저주입, 준페르미 준위, R-G 센터(트랩)</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy">빛을 비추거나 전압을 걸면 전자-정공 쌍이 <strong>추가로(과잉)</strong> 생겨요. 이들은 결국 다시 만나 사라져요(<strong>재결합</strong>). 소수 캐리어가 사라지기까지 걸리는 평균 시간이 <strong>수명(τ)</strong>이에요.</p>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li>재결합률(저주입, p형): <code>R' = δn/τ_n0</code>. 저주입은 과잉 캐리어가 다수 캐리어보다 훨씬 적은 상태예요.</li>
+          <li><span class="star">★</span> <strong>준페르미 준위</strong>: 비평형에서는 E_F 하나로 설명할 수 없어서 전자용·정공용을 따로 둬요.
+            <ul><li><code>n₀ + δn = nᵢ·exp[(E_Fn − E_Fi)/kT]</code></li><li><code>p₀ + δp = nᵢ·exp[(E_Fi − E_Fp)/kT]</code></li></ul></li>
+          <li class="ex">노트 Example 6.7 (n₀ = 10¹⁵, nᵢ = 10¹⁰, δn = δp = 10¹³): 다수 캐리어의 E_Fn은 0.2982 → <b>0.2984 eV</b>로 거의 그대로, 소수 캐리어의 E_Fp는 E_Fi 아래 <b>0.179 eV</b>로 크게 움직여요. → <b>준페르미 준위는 소수 캐리어 쪽만 크게 움직여요.</b></li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기</h3>
+        <ul>
+          <li><strong>Figure 6.2 / 6.3:</strong> 빛(hν)이 전자를 들어 올리면 과잉 캐리어 생성, 다시 떨어지면 재결합.</li>
+          <li><strong>Figure 3.16:</strong> Au, Cu, Mn, Cr, Fe 같은 금속 불순물은 <strong>밴드갭 한가운데(midgap)</strong>에 준위를 만들어요. 이게 <strong>트랩(R-G 센터)</strong>이에요.</li>
+          <li><strong>Figure 6.16:</strong> 트랩의 네 가지 과정 = 전자 포획, 전자 방출, 정공 포획, 정공 방출. 전자와 정공이 트랩을 <strong>징검다리</strong> 삼아 쉽게 재결합해요(SRH 재결합).</li>
+        </ul>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트 · 메모리 업계의 핵심</b><ul>
+        <li><strong>DRAM 리텐션 문제의 뿌리는 트랩</strong>이에요. 셀에 저장한 전하가 트랩을 거쳐 누설로 빠져나가서 주기적인 리프레시가 필요해요.</li>
+        <li>팹에서 금속 오염(Fe, Cu)을 철저히 관리하는 이유도 midgap 트랩 때문이에요.</li>
+        <li>준페르미 준위는 LED, 레이저, 태양전지, 이미지센서 동작 해석의 기본이에요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>수백만 DRAM 셀의 리텐션 분포에서 <strong>리텐션이 들쭉날쭉한 셀(VRT)·약한 셀 예측과 선별</strong></li>
+        <li>트랩 분석 스펙트럼(DLTS) 자동 해석으로 <strong>오염 원소 식별</strong></li>
+        <li>공정 데이터와 리텐션 불량을 연결한 <strong>근본 원인 분석 자동화</strong></li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 9 -->
+  <details class="ch" id="n9">
+    <summary><span class="sec"><small>NOTE</small>09</span><span class="sum-t">pn 접합 (1): 평형 상태<span class="sum-s">공핍층, 내부 전위 V_bi, 푸아송 방정식, 전기장·전위, 공핍층 폭 W</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy">p형(정공 동네)과 n형(전자 동네)을 붙이면 전자와 정공이 서로 넘어가 만나서 사라져요. 경계에는 <mark>움직이는 캐리어가 없는 빈 땅(공핍층)</mark>이 생기고, 남은 이온들이 <strong>전기장 벽(내부 전위 V_bi)</strong>을 만들어요. 이 벽이 더 이상의 확산을 막아서 <strong>균형</strong>이 이뤄져요.</p>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li><span class="star">★</span> 내부 전위 <code>V_bi = V_t·ln(N_a·N_d / nᵢ²)</code></li>
+          <li>푸아송 방정식의 전기장: p 영역 <code>E = −(eN_a/ε_s)(x + x_p)</code>, n 영역 <code>E = −(eN_d/ε_s)(x_n − x)</code></li>
+          <li>전하 균형 <code>N_a·x_p = N_d·x_n</code> → 도핑이 <strong>낮은 쪽으로</strong> 공핍층이 더 넓게 퍼져요.</li>
+          <li><span class="star">★</span> 공핍층 폭 <code>W = {(2ε_s·V_bi/e)·[(N_a + N_d)/(N_a·N_d)]}^{1/2}</code></li>
+          <li class="ex">노트 예제 (N_a = 10¹⁶, N_d = 10¹⁵ cm⁻³, 0 V): V_bi = <b>0.635 V</b>, W = <b>0.951 μm</b> (x_n = 0.864 μm로 대부분 n쪽), |E_max| = <b>1.34×10⁴ V/cm</b></li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기 (전하 → 전기장 → 전위 → 밴드)</h3>
+<pre> 전하 ρ
+        +eN_d  ┌──────┐          ← n쪽: 남은 도너 이온 (+)
+ ──────────────┼──────┴────── x
+   ┌───────────┘                  ← p쪽: 남은 억셉터 이온 (−)
+   │ −eN_a
+  −x_p         0      x_n
+
+ 전기장 E :  ─╲      ╱─   (삼각형, 거리에 따라 직선으로 변함)
+               ╲    ╱
+                ╲  ╱
+                 ╲╱  ← |E| 최대 (x = 0, 접합면)
+
+ 전위 V  :        ___
+                ╱      (2차 곡선, 전체 높이 = V_bi)
+            ___╱</pre>
+        <p>밴드 그림에서는 <strong>E_F가 전체에서 평평</strong>하고, 대신 E_c와 E_v가 qV_bi만큼 휘어요.</p>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li>pn 접합은 <strong>모든 소자의 기본 부품</strong>이에요. MOSFET 소스/드레인-웰, 이미지센서 포토다이오드, ESD 보호 다이오드가 모두 pn 접합이에요.</li>
+        <li>공핍층 폭은 <strong>짧은 채널 효과</strong>와 직결돼요. 소스/드레인 공핍층이 채널을 잠식하면 DIBL·펀치스루가 생겨요.</li>
+        <li>접합 전기장이 너무 크면 <strong>접합 밴드간 터널링(BTBT) 누설</strong>이 생겨요. 게이트-드레인 겹침 영역의 <strong>GIDL</strong>도 같은 BTBT가 원인이고, 둘 다 DRAM 리텐션을 나쁘게 만들어요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>3D 도핑 분포에서 <strong>공핍층·전기장 hot-spot 즉시 예측</strong> → 누설 취약 지점 탐색</li>
+        <li>DRAM 셀 접합 모양의 <strong>다목적 최적화</strong>(누설 최소 + 동작 속도 유지)</li>
+        <li>풀기 어려운 점: 3D 구조 속 도핑은 직접 측정이 어려워 학습 데이터가 부족해요.</li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 10 -->
+  <details class="ch sup" id="n10">
+    <summary><span class="sec"><small>NOTE</small>10</span><span class="sum-t">pn 접합 (2): 역바이어스와 접합 커패시턴스<span class="badge">보충</span><span class="sum-s">W(V_R), 접합 커패시턴스, 1/C² 도핑 측정, 항복</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="supnote">받은 파일에 없어서 교과서(Neamen 7장 후반)로 보충한 내용이에요. Note 14의 <code>W = [2ε_s(V_bi + V_R)/eN_d]^{1/2}</code>가 이 내용의 연장이에요.</div>
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy">p에 (−), n에 (+)를 걸면(역방향) 벽이 <strong>더 높고 두꺼워져서</strong> 전류가 거의 안 흘러요. 벽 양쪽에 전하가 쌓이니 <mark>커패시터처럼</mark> 행동해요.</p>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li><code>W = {(2ε_s(V_bi + V_R)/e)·[(N_a + N_d)/(N_a·N_d)]}^{1/2}</code> → 역전압↑ 이면 W↑</li>
+          <li>접합 커패시턴스 <code>C' = ε_s/W</code> → 역전압↑ 이면 C↓</li>
+          <li>한쪽 도핑이 훨씬 높은 접합(p⁺n): <code>1/C'² ∝ (V_bi + V_R)</code> → 이 기울기로 <strong>도핑 농도를 측정</strong>해요.</li>
+          <li>계속 올리면 <strong>항복</strong>: 애벌랜치(충돌 이온화로 눈사태처럼 증가)와 제너(얇은 벽을 터널링) 두 종류가 있어요.</li>
+        </ul>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li>접합 커패시턴스는 회로를 느리게 하는 <strong>기생 성분</strong>이에요. 소스/드레인 접합 면적을 줄이는 이유예요.</li>
+        <li>항복 전압은 전력 소자와 ESD 보호 설계의 <strong>핵심 사양</strong>이에요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>C–V 곡선으로 도핑 분포 자동 추출, 모양이 이상한 곡선 <strong>자동 분류</strong></li>
+        <li>전력 소자 구조 <strong>자동 설계</strong>(항복 전압 최대 + 켜짐 저항 최소)</li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 11 -->
+  <details class="ch" id="n11">
+    <summary><span class="sec"><small>NOTE</small>11</span><span class="sum-t">pn 접합 다이오드 (1): 순방향 바이어스<span class="sum-s">벽 낮추기, 소수 캐리어 주입, 4가지 가정, 접합의 법칙</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy">p에 (+)를 걸면(순방향) 벽 높이가 V_bi − V_a로 <strong>낮아져요</strong>. 전자와 정공이 벽을 넘어 상대편 동네로 <mark>주입</mark>되고, 그곳에서 <strong>소수 캐리어</strong>가 되어 전류가 흘러요.</p>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li>이상적 전류-전압 식의 4가지 가정: ① 공핍층 경계가 칼같이 뚜렷함 ② 볼츠만 근사 ③ <strong>저주입</strong> ④ 전체 전류 일정, 전자·정공 전류 각각 연속, 공핍층 안에서 일정</li>
+          <li><span class="star">★</span> <strong>접합의 법칙</strong>: <code>n_p(−x_p) = n_p0·exp(eV_a/kT)</code>, <code>p_n(x_n) = p_n0·exp(eV_a/kT)</code>
+            <ul><li>상온에서 전압을 <strong>약 0.06 V(kT/e × ln10 = 59.6 mV) 올릴 때마다 경계의 소수 캐리어가 10배</strong>가 돼요.</li></ul></li>
+          <li class="ex">노트 예제 (N_d = 10¹⁶, N_a = 6×10¹⁵ cm⁻³, V_a = 0.6 V): n_p0 = 3.75×10⁴ → <b>n_p = 4.31×10¹⁴ cm⁻³</b>, p_n0 = 2.25×10⁴ → <b>p_n = 2.59×10¹⁴ cm⁻³</b> (약 <b>1.15×10¹⁰배</b> 증가)</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기</h3>
+        <ul>
+          <li><strong>Figure 8.3:</strong> 순방향에서 벽이 e(V_bi − V_a)로 낮아지고, 준페르미 준위 E_Fn과 E_Fp가 eV_a만큼 벌어져요.</li>
+          <li><strong>Figure 8.4:</strong> 공핍층 양쪽 경계에서 소수 캐리어가 exp(eV_a/kT)배로 치솟고, 멀어질수록 원래 값으로 줄어들어요.</li>
+        </ul>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li>전압과 전류가 <strong>지수 관계</strong>라는 점이 모든 트랜지스터 동작의 뿌리예요. MOSFET의 문턱 아래(서브스레숄드) 동작도 같은 물리예요.</li>
+        <li>상온에서 SS(서브스레숄드 스윙)가 <strong>60 mV/dec보다 작아질 수 없는</strong> 이유도 exp(eV/kT) 때문이에요. 저전력 소자(TFET 등) 연구의 출발점이에요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>I–V 곡선에서 이상 계수, 직렬 저항, 누설 <strong>자동 추출</strong></li>
+        <li>대량 테스트 데이터에서 <strong>특성이 이상한 소자 조기 선별</strong></li>
+        <li>60 mV/dec 한계를 넘는 <strong>새 소자 구조 탐색</strong></li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 12 -->
+  <details class="ch" id="n12">
+    <summary><span class="sec"><small>NOTE</small>12</span><span class="sum-t">pn 접합 다이오드 (2): 이상적 다이오드 식<span class="sum-s">소수 캐리어 분포, 확산 길이 L, J = J_s[exp(eV/kT) − 1], 터널 다이오드</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy">넘어간 소수 캐리어는 상대편 동네에서 <strong>퍼지다가(확산) 점점 사라져요(재결합)</strong>. 사라지기 전까지 평균적으로 가는 거리가 <mark>확산 길이 L</mark>이에요. 이 퍼짐이 만드는 전류를 모두 더하면 그 유명한 <strong>다이오드 식</strong>이 나와요.</p>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li>소수 캐리어 연속 방정식 <code>D_p·d²(δp)/dx² − δp/τ_p0 = 0</code></li>
+          <li>해 <code>δp_n(x) = p_n0[exp(eV_a/kT) − 1]·exp[−(x − x_n)/L_p]</code>, <code>L_p = √(D_p·τ_p0)</code> → 거리에 따라 지수적으로 감소</li>
+          <li><span class="star">★★</span> <strong>이상적 다이오드 방정식</strong>: <code>J = J_s·[exp(eV_a/kT) − 1]</code>, <code>J_s = eD_p·p_n0/L_p + eD_n·n_p0/L_n</code>
+            <ul><li>순방향 → 지수적으로 증가, 역방향 → 아주 작은 −J_s에서 포화</li></ul></li>
+          <li><strong>터널 다이오드</strong>: p와 n을 모두 축퇴 수준으로 도핑하면 공핍층이 ~100 Å로 얇아져요. 전자가 벽을 <strong>뚫고(터널링)</strong> 지나가서, 전압을 올리는데 전류가 줄어드는 <strong>음성 미분 저항</strong> 구간이 생겨요.</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기</h3>
+        <p><strong>Figure 8.7:</strong> 전체 전류 J_total은 어디서나 같아요. x_n에서의 정공 확산 전류와 −x_p에서의 전자 확산 전류를 계산해서 <strong>더하면 끝</strong>이에요.</p>
+<pre> I
+ │          ╱  순방향: 지수 증가
+ │        ╱
+ │______╱______ V
+ │−I_s (역방향 포화)</pre>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li>J_s는 nᵢ²에 비례해 <strong>온도에 매우 민감</strong>해요. 온도 센서와 밴드갭 기준 전압 회로가 이 성질을 이용해요.</li>
+        <li>실제 소자는 공핍층 안 재결합 전류 때문에 이상 계수가 1~2가 돼요. 트랩 품질의 지표예요.</li>
+        <li>터널링은 TFET, 플래시 메모리 FN 터널링, GIDL·BTBT 누설을 이해하는 기초예요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>온도별 I–V 데이터로 <strong>수명, 확산 길이, 트랩 밀도 자동 추출</strong></li>
+        <li>SPICE 모델 파라미터 <strong>자동 피팅</strong>으로 모델링 작업 시간 단축</li>
+        <li>터널링 기반 신소자의 <strong>재료·구조 조합 최적화</strong></li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 13 -->
+  <details class="ch sup" id="n13">
+    <summary><span class="sec"><small>NOTE</small>13</span><span class="sum-t">금속-반도체 접합: 쇼트키 장벽<span class="badge">보충</span><span class="sum-s">일함수, 쇼트키 장벽 높이, 열방출 전류, 정류 vs 오믹 표</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="supnote">받은 파일에 없어서 Note 14 앞부분(Figure 14.2, Table 14.1)과 교과서 9장으로 보충했어요. Note 13이 쇼트키 장벽이라는 건 Note 14 손필기("Note 13 참고")를 보고 추정한 것이라, 실제 강의 내용과 다를 수 있어요.</div>
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy">금속과 반도체를 붙이면 <mark>일함수(Φ, 전자를 꺼내는 데 드는 에너지)</mark> 차이 때문에 경계에 벽이 생길 수 있어요. 이 벽 때문에 한쪽으로만 전류가 잘 흐르면 <strong>쇼트키 다이오드(정류)</strong>가 돼요.</p>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li>쇼트키 장벽 높이 <code>eΦ_B0 = e(Φ_m − χ)</code> (χ: 전자 친화도)</li>
+          <li>열방출 전류 <code>J = A*T²·exp(−eΦ_Bn/kT)·[exp(eV/kT) − 1]</code></li>
+        </ul>
+        <div class="tbl"><table>
+          <tr><th>Table 14.1 (꼭 외우기)</th><th>n형 반도체</th><th>p형 반도체</th></tr>
+          <tr><td>Φ_M &gt; Φ_S</td><td>정류(쇼트키)</td><td>오믹</td></tr>
+          <tr><td>Φ_M &lt; Φ_S</td><td>오믹</td><td>정류(쇼트키)</td></tr>
+        </table></div>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기</h3>
+        <p><strong>Figure 14.2:</strong> Φ_M &gt; Φ_S인 n형은 전자가 금속으로 빠지면서 밴드가 <strong>위로 휘고</strong> 장벽 Φ_B가 생겨요. Φ_M &lt; Φ_S이면 밴드가 아래로 휘어서 장벽이 없어요(오믹).</p>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li>쇼트키 다이오드는 소수 캐리어를 쌓아 두지 않아 <strong>스위칭이 빨라요</strong>. 전원 회로와 SiC 전력 소자에 널리 써요.</li>
+        <li>실제로는 계면 준위 때문에 <strong>페르미 레벨 피닝</strong>이 생겨서 금속을 바꿔도 Φ_B가 잘 안 변해요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>금속·계면층 조합별 <strong>장벽 높이 예측</strong>으로 컨택 재료 스크리닝</li>
+        <li>피닝을 줄이는 <strong>계면 공정 조건 탐색</strong>(베이지안 최적화)</li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 14 -->
+  <details class="ch" id="n14">
+    <summary><span class="sec"><small>NOTE</small>14</span><span class="sum-t">오믹 컨택<span class="sum-s">비정류 접합, 터널링 장벽, 비접촉 저항 R_c, 도핑 의존성</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy">칩의 금속 배선과 트랜지스터를 잇는 곳은 <strong>양방향으로 저항 없이 뻥 뚫려야</strong> 해요. 이게 오믹 컨택이에요. 방법은 두 가지: ① 처음부터 벽이 없게 일함수를 고르기 ② 벽을 <mark>아주 얇게</mark> 만들어 전자가 뚫고 지나가게 하기(고농도 도핑 + 터널링). <strong>현업에서는 거의 항상 ②</strong>를 써요.</p>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li>공핍층 폭 <code>W = [2ε_s(V_bi + V_R)/(eN_d)]^{1/2}</code> → N_d↑ 이면 W↓, 터널링이 쉬워져요.</li>
+          <li>터널링 전류 <code>J_t ∝ exp(−eΦ_Bn/E₀₀)</code>, <code>E₀₀ = (eħ/2)·√(N_d/(ε_s·mₙ*))</code></li>
+          <li><span class="star">★</span> <strong>비접촉 저항</strong> <code>R_c = (∂J/∂V)⁻¹|_{V=0}</code> [Ω·cm²] → <strong>작을수록 좋아요.</strong>
+            <ul>
+              <li>저·중도핑(열방출 주도): <code>R_c = (k/eA*T)·exp(+eΦ_Bn/kT)</code> → <strong>장벽 높이로 결정, 도핑과 무관</strong></li>
+              <li>고도핑(약 10¹⁹ cm⁻³ 이상, 터널링 주도): <code>R_c ∝ exp[(2√(ε_s·mₙ*)/ħ)·(Φ_Bn/√N_d)]</code> → <strong>도핑에 지수적으로 의존</strong></li>
+            </ul></li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기</h3>
+        <ul>
+          <li><strong>Figure 9.11 / 9.12:</strong> Φ_m &lt; Φ_s인 n형: 금속에 (+)면 전자가 <strong>내리막으로</strong>, 반도체에 (+)면 아주 낮은 벽만 넘으면 돼요. 양방향 모두 잘 흘러요.</li>
+          <li><strong>Figure 14.10:</strong> 저도핑 = 벽을 <strong>넘는</strong> 열방출, 중간 = 섞임, 고도핑 = 벽을 <strong>뚫는</strong> 터널링(전계 방출).</li>
+          <li><strong>R_c–1/√N_d 그래프:</strong> N_d가 10¹⁹를 넘으면 R_c가 <strong>몇 자릿수</strong> 떨어져요. Φ_B가 낮을수록(0.40 V 곡선) 유리해요.</li>
+        </ul>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트 · 첨단 공정의 핵심 병목</b><ul>
+        <li>소자가 작아지며 컨택 면적도 줄어서, 첨단 공정에서는 <strong>컨택을 포함한 외부 기생 저항</strong>이 전체 저항의 큰 몫(분석에 따라 절반 안팎)을 차지해요. 3 nm 이하의 <strong>핵심 이슈 중 하나</strong>예요.</li>
+        <li>현업 해법: ① <strong>실리사이드</strong>로 장벽 낮추기(과거 NiSi → FinFET 세대부터 Ti 계열) ② 소스/드레인 <strong>초고농도 도핑</strong> + 밀리초·레이저 어닐 ③ MIS 컨택으로 피닝 완화</li>
+        <li>목표 R_c는 대략 <strong>10⁻⁹ Ω·cm² 수준</strong>이에요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>실리사이드 재료·도핑·어닐 조건의 <strong>다변수 공정 최적화</strong>로 R_c 최소화</li>
+        <li>TLM 측정 데이터에서 R_c <strong>자동 추출</strong>과 웨이퍼 내 산포 원인 분석</li>
+        <li>원자 수준 계면 계산(DFT, NEGF)을 머신러닝으로 가속해 <strong>새 컨택 재료 발굴</strong></li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 15 -->
+  <details class="ch" id="n15">
+    <summary><span class="sec"><small>NOTE</small>15</span><span class="sum-t">MOSFET 기초 (1): MOS 커패시터<span class="sum-s">축적·공핍·반전, 밴드 다이어그램, C = ε_ox/t_ox</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy">MOSFET의 심장은 <strong>금속(게이트) / 산화막(절연체) / 반도체</strong> 샌드위치, 즉 MOS 커패시터예요. 게이트 전압을 바꾸면 반도체 표면이 세 가지 모습으로 바뀌어요.</p>
+        <div class="tbl"><table>
+          <tr><th>게이트 전압 (p형 기판)</th><th>표면 상태</th><th>쉬운 설명</th></tr>
+          <tr><td>(−)</td><td><strong>축적</strong></td><td>정공이 표면으로 몰려와요</td></tr>
+          <tr><td>작은 (+)</td><td><strong>공핍</strong></td><td>정공이 밀려나고 움직이지 못하는 (−) 이온만 남아요</td></tr>
+          <tr><td>큰 (+)</td><td><strong>반전</strong></td><td>표면에 전자가 모여 <strong>p형 표면이 n형처럼</strong> 바뀌어요 = <strong>채널</strong></td></tr>
+        </table></div>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li>평행판 커패시터 <code>C' = ε_ox/t_ox</code> (단위 면적당)</li>
+          <li><code>Q' = C'·V</code>: 게이트 전압이 반도체 표면에 전하를 끌어모아요.</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기 (밴드 다이어그램 네 컷)</h3>
+        <ul>
+          <li><strong>0 V:</strong> 밴드가 평평해요(플랫밴드). 단, 금속·반도체 일함수가 같고 산화막 전하가 없는 <strong>이상적 MOS</strong>일 때만이에요. 실제 소자는 Note 16의 <strong>V_G = V_FB</strong>일 때 평평해져요.</li>
+          <li><strong>(−) 전압:</strong> 표면에서 E_v가 E_F 쪽으로 올라와 정공이 쌓여요.</li>
+          <li><strong>작은 (+):</strong> 밴드가 아래로 휘고 공핍층 x_d가 생겨요.</li>
+          <li><strong>큰 (+):</strong> 표면의 E_Fi가 <strong>E_F 아래로</strong> 내려가요 → 표면이 n형 = 반전층.</li>
+        </ul>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li>산화막이 얇을수록 C_ox↑ → 게이트가 채널을 더 잘 조종해요. 그런데 SiO₂(SiON)를 ~1.2 nm 이하로 줄이자 <strong>터널링 누설이 폭증</strong>했어요.</li>
+        <li>해결책은 <strong>High-k(HfO₂) + 금속 게이트(HKMG)</strong>. Intel이 45 nm(2007)에서 처음 적용했고, 파운드리·메모리 업체는 대체로 32/28 nm 무렵부터 도입했어요.</li>
+        <li>물리적 두께는 유지하고 유전율을 올리는 방식이라 지표로 <strong>EOT(등가 산화막 두께)</strong>를 써요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>ALD 증착 조건 → <strong>High-k 막 두께·유전율·결함 예측</strong>(가상 계측)</li>
+        <li>원자 수준 계면 구조 탐색으로 <strong>새 게이트 절연막·계면층 후보 발굴</strong></li>
+        <li>산화막 두께 측정 데이터로 <strong>실시간 공정 제어(APC)</strong></li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 16 -->
+  <details class="ch" id="n16">
+    <summary><span class="sec"><small>NOTE</small>16</span><span class="sum-t">MOS 커패시터 (2): 반전 조건, 일함수, 플랫밴드 전압<span class="sum-s">φ_s = 2φ_fp, x_dT, 반전 전하, φ_ms, V_FB</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <ul class="easy">
+          <li><strong>"반전됐다"고 부를 기준</strong>을 정해요. 표면이 바닥(bulk)과 정반대 성격이 된 순간이에요.</li>
+          <li>실제 소자는 금속과 반도체의 <strong>일함수가 달라서</strong> 0 V에서도 밴드가 이미 휘어 있어요. 이걸 평평하게 되돌리는 전압이 <mark>플랫밴드 전압(V_FB)</mark>이에요.</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li>페르미 전위 <code>φ_fp = V_t·ln(N_a/nᵢ)</code> (n형은 <code>φ_fn = V_t·ln(N_d/nᵢ)</code>, 둘 다 양수로 둬요)</li>
+          <li><span class="star">★</span> <strong>문턱 반전 조건 <code>φ_s = 2φ_fp</code></strong>: 표면 전자 농도 = 바닥의 정공 농도</li>
+          <li><span class="star">★</span> 최대 공핍층 폭 <code>x_dT = [4ε_s·φ_fp/(eN_a)]^{1/2}</code>
+            <ul><li class="ex">노트 예제 (N_a = 2×10¹⁵): φ_fp = 0.306 V, <b>x_dT = 0.63 μm</b></li></ul></li>
+          <li>반전 전자 밀도 <code>n_s = n_st·exp(Δφ_s/V_t)</code> → 표면 전위가 <strong>조금만 올라도 전자가 폭증</strong>해요.</li>
+          <li>일함수 차이 <code>φ_ms = φ'_m − (χ' + E_g/2e + φ_fp)</code> (p형)
+            <ul><li class="ex">노트 예제 (Al, φ'_m = 3.20 V, χ' = 3.25 V, N_a = 10¹⁶): <b>φ_ms ≈ −0.96 V</b> (슬라이드 제목은 "n-type"이지만 문제는 N_a로 주어져 p형 식을 써요.)</li></ul></li>
+          <li><span class="star">★</span> <strong>플랫밴드 전압</strong> <code>V_FB = φ_ms − Q'_ss/C_ox</code>
+            <ul><li class="ex">노트 예제 (n⁺ poly, t_ox = 4 nm, Q'_ss = 2×10¹⁰ cm⁻², φ_ms = −1.03 V): C_ox = 8.63×10⁻⁷ F/cm², <b>V_FB = −1.034 V</b></li></ul></li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기</h3>
+        <ul>
+          <li><strong>Figure 10.9 / 10.10:</strong> 문턱 반전 지점. 표면에서 E_F가 E_Fi <strong>위로</strong> φ_fp만큼, 바닥에서는 <strong>아래로</strong> φ_fp만큼. 정확히 대칭이에요.</li>
+          <li><strong>Figure 10.11:</strong> 도핑이 높을수록 x_dT가 <strong>줄어요</strong>(로그-로그 직선).</li>
+          <li><strong>Figure 10.12:</strong> 2φ_fp를 넘은 뒤 0.12 V만 올라도 n_s가 10¹⁶ → 10¹⁸로 <strong>약 100배</strong>. 반전은 일단 시작되면 급격해요.</li>
+          <li><strong>Figure 10.13:</strong> 금속·산화막·반도체를 붙이면 <strong>E_F가 한 줄로 맞춰져요</strong>. 진공 준위가 어긋난 만큼 산화막에 전압이 걸리고 밴드가 휘어요.</li>
+          <li><strong>Figure 10.16:</strong> 게이트 재료(Al, Au, n⁺/p⁺ poly)와 도핑에 따른 φ_ms 값 그래프예요.</li>
+        </ul>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li>산화막 속 고정 전하 Q'_ss와 계면 트랩은 <strong>V_T를 흔드는 주범</strong>이에요. 공정 모니터링 핵심 항목이에요.</li>
+        <li>첨단 공정은 <strong>게이트 금속 일함수(φ_m)로 V_T를 맞춰요</strong>. TiN, TiAl 등으로 여러 V_T(Multi-VT)를 만들어요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>V_T 옵션별 <strong>일함수 금속 층 두께·조성 최적화</strong></li>
+        <li>산화막 전하·계면 트랩 데이터로 <strong>V_T 산포 예측</strong>과 공정 이상 조기 경보</li>
+        <li>풀기 어려운 점: 원자 몇 개 수준의 무작위 변동(도펀트 분포 RDF, 일함수 변동 WFV)은 확률적이라 <strong>통계 기반 AI</strong>가 필요해요.</li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 17 -->
+  <details class="ch" id="n17">
+    <summary><span class="sec"><small>NOTE</small>17</span><span class="sum-t">문턱 전압(V_T)과 C–V 특성<span class="sum-s">V_TN·V_TP 식과 예제, 축적·공핍·반전 커패시턴스, 주파수 효과, 산화막 전하</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <ul class="easy">
+          <li><strong>문턱 전압 V_T</strong>: 트랜지스터가 "켜지는" 최소 게이트 전압. 반도체 스위치의 켜짐/꺼짐 기준선이에요.</li>
+          <li><strong>C–V 측정</strong>: 게이트 전압을 바꿔 가며 커패시턴스를 재면 소자 속을 <mark>엑스레이처럼</mark> 들여다볼 수 있어요.</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li><span class="star">★★</span> <strong>NMOS 문턱 전압</strong> <code>V_TN = (|Q'_SD(max)| − Q'_ss)·(t_ox/ε_ox) + φ_ms + 2φ_fp</code>, <code>Q'_SD(max) = eN_a·x_dT</code>
+            <ul><li class="ex">노트 예제 (N_a = 2×10¹⁶, t_ox = 8 nm, Q'_ss = 2×10¹⁰, φ_ms = 0.28 V): φ_fp = 0.365 V, x_dT = 0.217 μm, Q_SD = 6.96×10⁻⁸ C/cm² → <b>V_TN = 0.154 + 0.28 + 0.731 ≈ 1.16 V</b></li></ul></li>
+          <li><strong>n형 기판 문턱 전압</strong> <code>V_TP = (−|Q'_SD(max)| − Q'_ss)·(t_ox/ε_ox) + φ_ms − 2φ_fn</code>
+            <ul><li class="ex">노트 예제 (N_d = 2×10¹⁶, t_ox = 20 nm, Q'_ss = 5×10¹⁰, φ_ms = 1.06 V): <b>V_TP = −0.450 + 1.06 − 0.731 ≈ −0.12 V</b> → 음수라서 <b>enhancement 모드</b>(게이트 0 V에서 꺼짐)</li></ul></li>
+          <li><strong>C–V 세 구간 (p형 기판)</strong>
+            <ul>
+              <li>축적: <code>C = C_ox</code></li>
+              <li>공핍: <code>1/C = 1/C_ox + 1/C_SD</code> → 두 커패시터가 <strong>직렬</strong>이라 C↓</li>
+              <li>반전 시작: <code>C'_min = ε_ox / [t_ox + (ε_ox/ε_s)·x_dT]</code> <span class="ex">— 노트 예제 (N_a = 3×10¹⁶, t_ox = 8 nm): <b>C'_min/C_ox = 0.118</b></span></li>
+              <li>플랫밴드: <code>C'_FB = ε_ox / [t_ox + (ε_ox/ε_s)·√((kT/e)·(ε_s/eN_a))]</code></li>
+            </ul></li>
+          <li>V_T와 V_FB의 관계 <code>V_TN = V_FB + 2φ_fp + |Q'_SD(max)|/C_ox</code></li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기 (C–V 곡선)</h3>
+<pre> C
+C_ox ━━━━━╮                ╭━━━━  저주파 (반전층이 따라옴)
+          ╲  공핍          ╱
+  C_FB ····●╲            ╱  중간 반전
+             ╲__________╱
+C_min ········╲─────────────────  고주파 (~1 MHz, 반전층이 못 따라옴)
+     축적   V_FB   V_T         V_G →</pre>
+        <ul>
+          <li><strong>주파수 효과:</strong> 약 1 MHz 고주파에서는 반전층 전자가 교류 신호를 못 따라와서 C_min에 <strong>머물러요</strong>.</li>
+          <li><strong>고정 산화막 전하:</strong> (+) 고정 전하가 있으면 곡선 모양은 그대로, <strong>음의 전압 쪽으로 평행 이동</strong>해요. 이동량으로 산화막 전하를 역산해요.</li>
+          <li>교과서 보충: 계면 트랩이 있으면 곡선이 옆으로 <strong>늘어지는</strong>(stretch-out) 모양이 돼요.</li>
+        </ul>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li>C–V는 팹의 <strong>게이트 산화막 건강검진</strong>이에요. EOT, V_FB, 산화막 전하, 계면 트랩 밀도(Dit), 도핑을 여기서 뽑아요.</li>
+        <li>V_T 산포는 <strong>SRAM 최소 동작 전압(Vmin)과 수율</strong>을 좌우해요.</li>
+        <li>3D NAND는 전하 트랩층에 전자를 넣고 빼서 <strong>V_T를 옮기는 것 자체가 데이터 저장 원리</strong>예요. 이 노트의 V_T 식이 메모리 셀의 기본이에요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li>C–V 곡선 → <strong>EOT, V_FB, Dit, N_a 자동 추출</strong>, 이상 곡선 분류</li>
+        <li>3D NAND 셀 V_T 분포 변화를 예측해 <strong>읽기 전압 최적화</strong>. 읽기 전압 조정 자체는 이미 표준 기술이고, ML 기반 방식은 연구 중이거나 일부 적용되는 단계예요.</li>
+        <li>공정 변수로 V_T를 예측하는 <strong>가상 계측 모델</strong>로 전수 측정 비용 절감</li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  <!-- 18 -->
+  <details class="ch" id="n18">
+    <summary><span class="sec"><small>NOTE</small>18</span><span class="sum-t">MOSFET 기본 동작과 I–V 특성<span class="sum-s">네 종류의 MOSFET, 선형·핀치오프·포화, V_DS(sat) = V_GS − V_T</span></span><span class="chev"></span></summary>
+    <div class="body">
+      <div class="blk"><h3><span class="k">EASY</span>쉽게 말하면</h3>
+        <p class="easy">MOS 커패시터 양옆에 <strong>소스(입구)와 드레인(출구)</strong>을 붙이면 MOSFET이에요. 게이트 전압이 V_T를 넘으면 반전층이라는 <mark>다리가 놓여</mark> 전자가 소스에서 드레인으로 건너가요. 게이트는 다리 폭(전자 수)을 조절하는 수도꼭지예요.</p>
+      </div>
+      <div class="blk"><h3><span class="k">FORMULA</span>핵심 수식</h3>
+        <ul>
+          <li>네 종류: NMOS/PMOS × <strong>enhancement</strong>(게이트 0 V에서 꺼짐) / <strong>depletion</strong>(게이트 0 V에서도 켜짐)</li>
+          <li>선형 구간 (V_DS 작음, V_GS − V_DS &gt; V_T): 채널 두께가 균일 → <strong>저항처럼</strong> 동작</li>
+          <li><span class="star">★</span> <strong>핀치오프 <code>V_DS(sat) = V_GS − V_T</code></strong>: 드레인 쪽 끝에서 채널 전하가 0이 되는 순간</li>
+          <li>포화 구간 (V_DS &gt; V_DS(sat)): 핀치오프 지점이 소스 쪽으로 조금 이동. ΔL ≪ L이면 <strong>I_D가 거의 일정</strong></li>
+          <li>다음 강의로 이어질 표준 식:
+            <ul><li>선형 <code>I_D = (W·μₙ·C_ox/2L)·[2(V_GS − V_T)V_DS − V_DS²]</code></li>
+            <li>포화 <code>I_D = (W·μₙ·C_ox/2L)·(V_GS − V_T)²</code></li></ul></li>
+          <li>depletion 모드 조건: 채널 두께 <strong>t_c &lt; x_dT</strong>여야 게이트로 채널을 완전히 끌 수 있어요.</li>
+        </ul>
+      </div>
+      <div class="blk"><h3><span class="k">FIGURE</span>노트 그림 읽기</h3>
+        <ul>
+          <li><strong>단면도 네 컷:</strong> V_DS가 커질수록 채널(파란 층)이 <strong>드레인 쪽에서 얇아지는 쐐기 모양</strong>이 되다가 결국 끝이 0이 돼요(핀치오프).</li>
+          <li><strong>I_D–V_DS 곡선:</strong> 점선 포물선 <code>V_DS(sat) = V_GS − V_T</code>의 왼쪽이 선형, 오른쪽이 포화. V_GS가 클수록 곡선이 위로 올라가요.</li>
+        </ul>
+<pre> I_D          ╱ V_DS(sat)=V_GS−V_T (점선)
+ │      ╭────●━━━━━━━  V_GS3
+ │    ╭─●━━━━━━━━━━━━  V_GS2
+ │  ╭●━━━━━━━━━━━━━━━  V_GS1
+ │ ╱ 선형 │  포화
+ └──────────────────── V_DS</pre>
+      </div>
+      <div class="blk"><div class="point"><b class="tag">현업 포인트</b><ul>
+        <li><code>I ∝ (W/L)·μ·C_ox·(V_GS − V_T)²</code> 하나로 반도체 발전의 역사가 설명돼요: L↓(미세화), C_ox↑(High-k), μ↑(응력), W를 3D로↑(<strong>FinFET → GAA, 삼성은 MBCFET</strong>).</li>
+        <li>실제 짧은 채널에서는 속도 포화, 채널 길이 변조, DIBL 때문에 이상적인 식에서 벗어나요. 이를 반영한 <strong>BSIM 모델</strong>이 업계 표준이에요.</li>
+        <li>DRAM 셀 트랜지스터와 NAND 셀도 모두 이 동작 원리 위에 있어요.</li>
+      </ul></div></div>
+      <div class="blk"><div class="point ai"><b class="tag">AI가 풀 수 있는 문제</b><ul>
+        <li><strong>DTCO</strong>(설계와 공정을 함께 최적화): 소자 구조 → 회로 성능(PPA) 탐색을 AI 대리모델로 크게 단축(정도는 사례마다 달라요)</li>
+        <li>BSIM 파라미터 <strong>자동 추출</strong>, 신경망 기반 컴팩트 모델로 신소자 빠른 모델링</li>
+        <li>전기 테스트 빅데이터로 <strong>수율 예측</strong>, 불량 웨이퍼 맵 패턴 자동 분류</li>
+        <li>남은 과제: 전하 보존·대칭성 같은 <strong>물리 법칙을 지키는 AI 모델</strong>, 데이터가 적은 공정 초기를 위한 <strong>전이 학습</strong></li>
+      </ul></div></div>
+    </div>
+  </details>
+
+  </div>
+
+  <section class="finale" aria-labelledby="finale-h">
+    <div class="k">SUMMARY</div>
+    <h2 id="finale-h">전체 흐름 한 장 요약</h2>
+<pre>Note1 결정구조 → Note2~3 밴드·통계 → Note4~5 캐리어 수 (n·p = nᵢ²)
+     → Note6~7 캐리어 이동 (드리프트 + 확산) → Note8 과잉 캐리어·트랩
+     → Note9~12 pn 접합·다이오드 (V_bi, W, J = J_s[e^{V/V_t} − 1])
+     → Note13~14 금속-반도체 (쇼트키·오믹, R_c)
+     → Note15~17 MOS 커패시터 (V_FB, V_T, C–V)
+     → Note18 MOSFET 동작 (V_DS(sat) = V_GS − V_T)</pre>
+    <h2 style="margin-top:18px">현업 엔지니어가 암산으로 쓰는 7대 공식</h2>
+    <ol class="formulas">
+      <li><i>01 · 질량작용</i><code>n·p = nᵢ²</code></li>
+      <li><i>02 · 전도도</i><code>σ = e(nμₙ + pμₚ)</code></li>
+      <li><i>03 · 아인슈타인</i><code>D/μ = kT/e</code></li>
+      <li><i>04 · 내부 전위</i><code>V_bi = V_t·ln(N_aN_d/nᵢ²)</code></li>
+      <li><i>05 · 다이오드</i><code>J = J_s(e^{V/V_t} − 1)</code></li>
+      <li><i>06 · 문턱 전압</i><code>V_T = V_FB + 2φ_fp + |Q'_SD|/C_ox</code></li>
+      <li><i>07 · 핀치오프</i><code>V_DS(sat) = V_GS − V_T</code></li>
+    </ol>
+  </section>
+
+  <div class="fix">
+    <b>팩트체크 완료:</b> 노트 예제 13개를 모두 다시 계산했고, 수식은 노트 슬라이드 원본과 대조했어요. 정리 과정에서 고친 곳:
+    <ul>
+      <li>Note 6 GaAs 예제: 노트 Table 5.1의 μₙ = 8500 기준으로 J = 136 A/cm²</li>
+      <li>Note 9: 접합 BTBT 누설과 GIDL(게이트-드레인 겹침 영역)을 구분</li>
+      <li>Note 15: HKMG 도입 시기(Intel 45 nm, 그 밖은 대체로 32/28 nm)와 "0 V 플랫밴드는 이상적 MOS일 때만" 조건 추가</li>
+      <li>Note 14·17·18: 업계 수치와 AI 적용 사례의 과장된 표현 완화</li>
+    </ul>
+  </div>
+</main>
+
+<p class="foot">AI WITH DANNY · SEMICONDUCTOR DEVICES</p>
+
+<script>
+(function(){
+  var btn=document.getElementById('toggleall');
+  var all=[].slice.call(document.querySelectorAll('details.ch'));
+  function sync(){btn.textContent=all.every(function(d){return d.open})?'모두 접기':'모두 펼치기'}
+  btn.addEventListener('click',function(){var open=!all.every(function(d){return d.open});all.forEach(function(d){d.open=open});sync()});
+  all.forEach(function(d){d.addEventListener('toggle',sync)});
+  function norm(s){return (s||'').toLowerCase().replace(/[\s_·\-–—()]/g,'')}
+  /* 홈 검색에서 넘어올 때: semiconductor.html?hl=공핍층#n9 → 노트를 펼치고 그 문구가 있는 줄로 이동해 강조 */
+  function highlight(d){
+    var hl=null;
+    try{hl=new URLSearchParams(location.search).get('hl')}catch(e){}
+    if(!hl) return false;
+    var q=norm(hl),best=null;
+    [].forEach.call(d.querySelectorAll('.body p, .body li, .body td, .body pre'),function(el){
+      var t=norm(el.textContent);
+      if(t.indexOf(q)>=0&&(!best||t.length<norm(best.textContent).length)) best=el;
+    });
+    if(!best) return false;
+    requestAnimationFrame(function(){
+      best.scrollIntoView({block:'center'});
+      best.classList.remove('flash');void best.offsetWidth;best.classList.add('flash');
+    });
+    return true;
+  }
+  function openHash(first){
+    var id=location.hash.slice(1);var el=id&&document.getElementById(id);
+    if(el&&el.tagName==='DETAILS'){
+      el.open=true;sync();
+      if(!(first===true&&highlight(el))) requestAnimationFrame(function(){el.scrollIntoView({block:'start'})});
+    }
+  }
+  window.addEventListener('hashchange',openHash);openHash(true);
+})();
+</script>
+</body>
+</html>
