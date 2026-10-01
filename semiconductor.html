@@ -116,6 +116,25 @@ tr:last-child td{border-bottom:0}
 .fix{margin-top:18px;border:1px solid var(--line);background:var(--panel);padding:16px 18px;font-size:14px;color:var(--soft)}
 .fix b{color:var(--text)}
 .fix ul{margin:6px 0 0;padding-left:20px}
+/* 이해했어요 체크 + 진도 */
+.check{display:inline-flex;gap:10px;align-items:center;margin-top:22px;font-size:14px;color:var(--soft);border:1px solid var(--line-hi);padding:8px 16px;cursor:pointer;user-select:none}
+.check input{accent-color:var(--cyan);width:16px;height:16px;margin:0}
+.check:has(input:checked){color:var(--cyan);border-color:var(--cyan);box-shadow:var(--glow)}
+details.ch.done .sec{color:var(--cyan);text-shadow:var(--glow)}
+details.ch.sup.done .sec{color:var(--orange);text-shadow:var(--glow-o)}
+.donebadge{font:700 10px var(--display);letter-spacing:.14em;border:1px solid var(--cyan);color:var(--cyan);padding:2px 7px;margin-left:8px;vertical-align:middle;white-space:nowrap}
+.toc a.done{border-color:var(--cyan-mid)}
+.toc a.done::after{content:"✓";justify-self:end;color:var(--cyan);font-weight:700;margin-left:auto}
+.toc a{grid-template-columns:34px minmax(0,1fr) auto}
+.progress{margin-top:16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 18px;align-items:center;border:1px solid var(--cyan);background:var(--panel-2);padding:16px 18px;box-shadow:inset 0 0 24px rgba(111,230,255,.08)}
+.progress .k{font-family:var(--display);font-size:11px;letter-spacing:.26em;color:var(--cyan)}
+.progress .cnt{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.progress .cnt small{display:block;font-size:13px;color:var(--soft);font-weight:400;margin-top:2px}
+.progress .track{grid-column:1/-1;height:6px;background:var(--cyan-dim);position:relative;overflow:hidden}
+.progress .track i{position:absolute;inset:0 auto 0 0;width:0;background:var(--cyan);box-shadow:0 0 8px rgba(111,230,255,.7);transition:width .5s}
+.btn{cursor:pointer;font:600 14px var(--sans);color:var(--bg);background:var(--cyan);border:0;padding:10px 18px;box-shadow:var(--glow);text-decoration:none;white-space:nowrap;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.btn:hover{filter:brightness(1.1)}
+@media (max-width:520px){.progress{grid-template-columns:minmax(0,1fr)}.progress .btn{justify-self:start}}
 .flash{animation:flash 2.4s ease-out}
 @keyframes flash{0%,45%{background:rgba(255,157,63,.18);box-shadow:inset 3px 0 0 var(--orange)}100%{background:transparent;box-shadow:none}}
 .foot{max-width:1080px;margin:48px auto 0;font-family:var(--display);font-size:10px;letter-spacing:.3em;color:var(--cyan-dim);text-align:center}
@@ -137,6 +156,15 @@ tr:last-child td{border-bottom:0}
 <main class="shell">
   <div class="notice">
     <b>자료 범위:</b> 받은 PDF 18개(Introduction 1개 + 강의노트 17개, Note 17은 두 버전)를 정리했어요. 받은 파일에 <b>Note 10과 Note 13은 없어서</b> 교과서(Neamen) 흐름에 맞춰 보충했고, <span class="star">[보충]</span>이라고 표시했어요. Note 17은 두 버전을 합쳤어요.
+  </div>
+
+  <div class="progress" aria-live="polite">
+    <div>
+      <div class="k">PROGRESS</div>
+      <div class="cnt"><span id="semiCount">0 / 18</span> 노트 이해함<small id="semiHint">노트 맨 아래 "이해했어요"를 누르면 올라가요</small></div>
+    </div>
+    <a class="btn" id="semiNext" href="#n1">다음 볼 노트 · Note 01</a>
+    <div class="track" aria-hidden="true"><i id="semiBar"></i></div>
   </div>
 
   <div class="toc-h">바로가기</div>
@@ -964,6 +992,43 @@ C_min ········╲─────────────────  �
     }
   }
   window.addEventListener('hashchange',openHash);openHash(true);
+
+  /* 이해했어요: 노트마다 체크, 진도는 이 기기 브라우저에 저장 (12개 장 진도와 별도) */
+  var KEY='semi-notes-done',done={};
+  try{done=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){done={}}
+  var boxes=all.map(function(d){
+    var lab=document.createElement('label');lab.className='check';
+    var cb=document.createElement('input');cb.type='checkbox';cb.id='chk-'+d.id;cb.setAttribute('data-n',d.id);
+    lab.appendChild(cb);lab.appendChild(document.createTextNode('이해했어요'));
+    d.querySelector('.body').appendChild(lab);
+    cb.addEventListener('change',function(){
+      if(cb.checked) done[d.id]=true; else delete done[d.id];
+      try{localStorage.setItem(KEY,JSON.stringify(done))}catch(e){}
+      render();
+    });
+    return cb;
+  });
+  function label(id){var n=id.slice(1);return 'Note '+(n.length<2?'0':'')+n}
+  function render(){
+    var n=0,next=null;
+    boxes.forEach(function(cb){
+      var id=cb.getAttribute('data-n'),d=document.getElementById(id),on=!!done[id];
+      cb.checked=on;d.classList.toggle('done',on);
+      var badge=d.querySelector('.donebadge');
+      if(on&&!badge){badge=document.createElement('span');badge.className='donebadge';badge.textContent='이해함';d.querySelector('.sum-t').insertBefore(badge,d.querySelector('.sum-t .sum-s'))}
+      if(!on&&badge) badge.remove();
+      var t=document.querySelector('.toc a[href="#'+id+'"]');if(t) t.classList.toggle('done',on);
+      if(on) n++; else if(!next) next=id;
+    });
+    var total=boxes.length;
+    document.getElementById('semiCount').textContent=n+' / '+total;
+    document.getElementById('semiBar').style.width=(n/total*100)+'%';
+    var nb=document.getElementById('semiNext'),hint=document.getElementById('semiHint');
+    if(next){nb.hidden=false;nb.href='#'+next;nb.textContent='다음 볼 노트 · '+label(next)}
+    else{nb.hidden=true}
+    hint.textContent=n===total?'18개 노트를 모두 이해했어요! 맨 아래 7대 공식으로 한 번 더 정리해 보세요.':(n?'잘하고 있어요. 다음 노트로 넘어가 볼까요?':'노트 맨 아래 "이해했어요"를 누르면 올라가요');
+  }
+  render();
 })();
 </script>
 </body>
