@@ -531,6 +531,12 @@ body.is-home{background:var(--bg)}
 .cart-map .leaflet-control-attribution{background:rgba(3,6,10,.75);color:var(--soft)}
 .cart-map .leaflet-control-attribution a{color:var(--cyan-mid)}
 
+a.cartbar{text-decoration:none}
+.cartbar.semibar{margin-top:12px}
+.cartbar.semibar:hover{border-color:var(--cyan)}
+.cartbar.semibar svg{stroke:var(--cyan)}
+.cartbar.semibar .live{color:var(--cyan);border-color:var(--cyan)}
+
 .home-foot{margin-top:auto;padding-top:56px;font-size:12px;color:#5B7F8B;text-align:center;letter-spacing:.02em}
 
 .homebtn{display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;background:transparent;border:1px solid var(--line-hi);color:var(--cyan);font:500 13px var(--sans);padding:6px 14px;cursor:pointer}
@@ -561,7 +567,7 @@ body.is-home{background:var(--bg)}
 
     <form class="searchbox" id="searchform" role="search" autocomplete="off">
       <svg class="mag" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-      <input id="q" type="search" placeholder="궁금한 개념을 찾아보세요 (예: 멱등성, 캐시, OAuth)" aria-label="개념 검색" aria-autocomplete="list" aria-controls="sugg">
+      <input id="q" type="search" placeholder="궁금한 개념을 찾아보세요 (예: 멱등성, OAuth, 공핍층, 문턱 전압)" aria-label="개념 검색" aria-autocomplete="list" aria-controls="sugg">
       <button class="lucky" id="lucky" type="button" title="아무 개념이나 하나 골라 줘요"><b>✦</b> <span class="lt">오늘의 개념</span></button>
       <ul id="sugg" class="sugg" role="listbox" hidden></ul>
     </form>
@@ -582,6 +588,12 @@ body.is-home{background:var(--bg)}
       <span class="ct"><b>Where is my cart?</b><small>경희대 국제캠퍼스 판매 카트의 실시간 위치와 지나온 경로</small></span>
       <span class="live"><i></i>LIVE</span>
     </button>
+
+    <a class="cartbar semibar" href="semiconductor.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>
+      <span class="ct"><b>반도체소자</b><small>강의노트 1~18 · 쉬운 설명, 핵심 수식, 현업 포인트, AI 활용</small></span>
+      <span class="live">NOTES</span>
+    </a>
 
     <div class="shortcuts" aria-label="장 바로가기">
       <button class="sc" type="button" data-nav="c1"><span class="ic"><i>01</i></span><span class="lb">인터넷의 기본</span></button>
@@ -1586,16 +1598,129 @@ body.is-home{background:var(--bg)}
       index.push({id:c.id,title:t+(en?' · '+en.textContent:''),label:num+'장 · '+chTitle,head:h.textContent.toLowerCase(),body:c.textContent.toLowerCase(),concept:true});
     });
   });
+  /* 반도체소자 페이지(semiconductor.html) 개념: [노트 번호, 제목, 검색어(동의어·영문), 그 노트 안에서 강조할 문구] */
+  var SEMI_NOTES={1:'결정 구조',2:'에너지 밴드와 캐리어 모델링',3:'상태밀도(DOS)와 페르미 함수',4:'평형 상태의 캐리어 분포 (1)',5:'평형 상태의 캐리어 분포 (2)',6:'캐리어 수송 (1): 드리프트와 이동도',7:'캐리어 수송 (2): 전도도, 확산, 아인슈타인 관계',8:'비평형 과잉 캐리어',9:'pn 접합 (1): 평형 상태',10:'pn 접합 (2): 역바이어스와 접합 커패시턴스',11:'pn 접합 다이오드 (1): 순방향 바이어스',12:'pn 접합 다이오드 (2): 이상적 다이오드 식',13:'금속-반도체 접합: 쇼트키 장벽',14:'오믹 컨택',15:'MOSFET 기초 (1): MOS 커패시터',16:'MOS 커패시터 (2): 반전 조건, 일함수, 플랫밴드 전압',17:'문턱 전압(V_T)과 C–V 특성',18:'MOSFET 기본 동작과 I–V 특성'};
+  var SEMI=[
+    [1,'단결정·다결정·비정질','single crystal polycrystalline amorphous grain boundary 결정립 고체','단결정'],
+    [1,'단위셀 · sc/bcc/fcc','unit cell 단위 셀 격자 lattice 입방 simple cubic 부피 밀도','입방 격자'],
+    [1,'밀러 지수','miller index 결정면 (100) (110) (111)','밀러 지수'],
+    [1,'다이아몬드 구조 · 징크블렌드','diamond zincblende gaas 정사면체','다이아몬드 구조'],
+    [1,'결정 결함과 불순물','defect vacancy interstitial dislocation frenkel 빈자리 선결함','결함'],
+    [1,'초크랄스키 성장 · 잉곳·웨이퍼','czochralski cz ingot wafer seed 노치 notch','초크랄스키'],
+    [2,'에너지 밴드 · 가전자대·전도대','energy band valence band conduction band 밴드','가전자대'],
+    [2,'밴드갭 (Eg)','bandgap band gap eg 1.12 부도체 금속 insulator metal','밴드갭'],
+    [2,'전자와 정공','hole electron 캐리어 carrier','정공'],
+    [2,'유효질량','effective mass m*','유효질량'],
+    [2,'진성 반도체 · nᵢ','intrinsic ni 진성 캐리어 농도','진성 반도체'],
+    [2,'도핑 · 도너·억셉터','doping donor acceptor n형 p형 n-type p-type dopant 인 붕소 비소','도핑'],
+    [2,'응력(Strain) 기술','strain sige 스트레인 이동도 향상','응력'],
+    [3,'상태밀도 (DOS)','density of states dos g(e)','상태밀도'],
+    [3,'페르미-디랙 함수 · 페르미 준위','fermi dirac function fermi level ef f(e)','페르미-디랙'],
+    [3,'볼츠만 근사 · 3kT 규칙','boltzmann approximation 3kt kt 0.0259','볼츠만 근사'],
+    [4,'평형 캐리어 농도 n₀·p₀','equilibrium carrier concentration n0 p0 전자 농도 정공 농도','전자 농도'],
+    [4,'유효 상태밀도 Nc·Nv','effective density of states nc nv','유효 상태밀도'],
+    [4,'질량작용 법칙 n·p = nᵢ²','mass action law np=ni2 n0p0','질량작용'],
+    [4,'축퇴 반도체','degenerate nondegenerate 비축퇴','축퇴'],
+    [5,'완전 이온화 · 동결','complete ionization freeze-out freeze out 이온화','완전 이온화'],
+    [5,'보상 반도체','compensated compensation 카운터 도핑 counter doping','보상'],
+    [5,'전하 중성 조건','charge neutrality','전하 중성'],
+    [5,'캐리어 농도의 온도 의존성','temperature extrinsic intrinsic region 외인성 영역 진성 영역','외인성'],
+    [6,'드리프트 전류','drift current drift velocity 드리프트 속도','드리프트 전류'],
+    [6,'이동도 (mobility)','mobility μ 뮤','이동도'],
+    [6,'산란 · 포논·불순물','scattering phonon ionized impurity lattice','포논'],
+    [6,'속도 포화','velocity saturation vsat','속도 포화'],
+    [7,'전도도·비저항·면저항','conductivity resistivity sheet resistance rs 4-point probe 저항','전도도'],
+    [7,'확산 전류 · Fick의 법칙','diffusion fick 확산 계수','Fick'],
+    [7,'전체 전류 밀도 (드리프트 + 확산)','total current density drift-diffusion 드리프트-확산','전체 전류'],
+    [7,'아인슈타인 관계 D/μ = kT/e','einstein relation','아인슈타인'],
+    [7,'불균일 도핑의 내부 전기장','nonuniform doping induced electric field built-in field','불균일 도핑'],
+    [8,'생성과 재결합','generation recombination g-r','재결합'],
+    [8,'소수 캐리어 수명 τ','lifetime minority carrier tau','수명'],
+    [8,'저주입','low injection low-level injection','저주입'],
+    [8,'준페르미 준위','quasi-fermi level efn efp imref','준페르미'],
+    [8,'트랩 · R-G 센터 · SRH 재결합','trap srh shockley read hall midgap recombination center 금속 오염','트랩'],
+    [8,'DRAM 리텐션','retention refresh 리프레시 vrt','리텐션'],
+    [9,'pn 접합','pn junction metallurgical junction 접합','pn 접합'],
+    [9,'공핍층 (depletion · 공간 전하 영역)','depletion region space charge region scr','공핍층'],
+    [9,'내부 전위 V_bi','built-in potential vbi 내장 전위 built in','내부 전위'],
+    [9,'공핍층 폭 W','depletion width xn xp','공핍층 폭'],
+    [9,'푸아송 방정식 · 접합 전기장','poisson electric field emax 전기장','푸아송'],
+    [9,'BTBT · GIDL 누설','band to band tunneling gidl leakage 누설','GIDL'],
+    [10,'역방향 바이어스','reverse bias vr','역방향'],
+    [10,'접합 커패시턴스 · 1/C²','junction capacitance c-v doping profile','접합 커패시턴스'],
+    [10,'항복 (애벌랜치·제너)','breakdown avalanche zener','항복'],
+    [11,'순방향 바이어스 · 캐리어 주입','forward bias injection 주입','순방향'],
+    [11,'접합의 법칙','law of the junction exp(eva/kt)','접합의 법칙'],
+    [11,'서브스레숄드 스윙 60 mV/dec','subthreshold swing ss 60mv tfet','60 mV/dec'],
+    [12,'이상적 다이오드 방정식','ideal diode equation shockley js 포화 전류 saturation current i-v','이상적 다이오드 방정식'],
+    [12,'확산 길이 L','diffusion length lp ln','확산 길이'],
+    [12,'소수 캐리어 연속 방정식','continuity equation ambipolar','연속 방정식'],
+    [12,'터널 다이오드 · 음성 미분 저항','tunnel diode ndr negative differential resistance esaki','터널 다이오드'],
+    [13,'쇼트키 장벽 · 쇼트키 다이오드','schottky barrier diode 정류 rectifying','쇼트키 장벽'],
+    [13,'일함수 · 전자 친화도','work function electron affinity χ φm','일함수'],
+    [13,'열방출 전류','thermionic emission a* richardson','열방출'],
+    [13,'페르미 레벨 피닝','fermi level pinning','피닝'],
+    [14,'오믹 컨택','ohmic contact 오믹 접촉','오믹 컨택'],
+    [14,'비접촉 저항 R_c','specific contact resistance rc contact resistance 컨택 저항','비접촉 저항'],
+    [14,'터널링 · 전계 방출','tunneling field emission e00','전계 방출'],
+    [14,'실리사이드','silicide nisi tisi mis contact','실리사이드'],
+    [15,'MOS 커패시터','mos capacitor metal oxide semiconductor','MOS 커패시터'],
+    [15,'축적·공핍·반전','accumulation depletion inversion 반전층 inversion layer 채널','반전'],
+    [15,'산화막 커패시턴스 C_ox','oxide capacitance cox tox 평행판','평행판'],
+    [15,'High-k · HKMG · EOT','high-k hkmg metal gate hfo2 eot 게이트 절연막','HKMG'],
+    [16,'문턱 반전 조건 φs = 2φfp','threshold inversion surface potential 표면 전위 φfp 페르미 전위','문턱 반전'],
+    [16,'최대 공핍층 폭 x_dT','maximum space charge width xdt','최대 공핍층 폭'],
+    [16,'일함수 차이 φms','work function difference phi ms φms','일함수 차이'],
+    [16,'플랫밴드 전압 V_FB','flat band voltage vfb flatband','플랫밴드 전압'],
+    [16,'산화막 고정 전하 · 계면 트랩','oxide charge fixed charge qss interface trap dit','고정 전하'],
+    [17,'문턱 전압 V_T','threshold voltage vt vth vtn vtp 문턱전압','문턱 전압'],
+    [17,'C–V 특성','c-v cv capacitance voltage 커패시턴스','C–V'],
+    [17,'고주파·저주파 C–V · C_min','cmin high frequency low frequency 1mhz 주파수','주파수 효과'],
+    [17,'3D NAND · 전하 트랩','nand flash charge trap 플래시','3D NAND'],
+    [18,'MOSFET 동작 원리','mosfet transistor 트랜지스터 source drain gate 소스 드레인 게이트','소스'],
+    [18,'Enhancement · Depletion 모드','enhancement mode depletion mode 증가형 공핍형','enhancement'],
+    [18,'핀치오프 · V_DS(sat)','pinch-off pinch off vdssat 포화 전압','핀치오프'],
+    [18,'선형·포화 구간 I–V','linear saturation region id vds drain current 드레인 전류','선형 구간'],
+    [18,'FinFET · GAA · BSIM','finfet gaa mbcfet bsim 미세화 scaling dtco','FinFET']
+  ];
+  function semiUrl(n,hl){return 'semiconductor.html'+(hl?'?hl='+encodeURIComponent(hl):'')+'#n'+n}
+  function semiLabel(n){return '반도체 · Note '+(n<10?'0':'')+n}
+  Object.keys(SEMI_NOTES).forEach(function(n){
+    var t=SEMI_NOTES[n];
+    index.push({url:semiUrl(n),title:t,label:semiLabel(+n),head:('반도체 반도체소자 '+t).toLowerCase(),body:''});
+  });
+  SEMI.forEach(function(s){
+    index.push({url:semiUrl(s[0],s[3]),title:s[1],label:semiLabel(s[0]),head:(s[1]+' '+s[2]).toLowerCase(),body:SEMI_NOTES[s[0]].toLowerCase(),concept:true});
+  });
+  /* 띄어쓰기·기호를 빼고도 찾되("문턱전압", "V_T", "C-V"), 단어 시작점에서만 맞춰서 우연한 일치를 막아요 */
+  var SEP=/[\s_·\-–—()\/,.:]+/;
+  function norm(s){return s.toLowerCase().split(SEP).join('')}
+  function joined(s){
+    var toks=s.split(SEP).filter(Boolean),j='',starts=[];
+    toks.forEach(function(t){starts.push(j.length);j+=t});
+    return {j:j,starts:starts};
+  }
+  function atWordStart(x,qn){
+    for(var i=0;i<x.starts.length;i++){if(x.j.substr(x.starts[i],qn.length)===qn) return true}
+    return false;
+  }
+  index.forEach(function(it){it.headJ=joined(it.head);it.bodyJ=joined(it.body);it.titleL=it.title.toLowerCase();it.titleJ=joined(it.titleL)});
   function search(q){
     q=q.trim().toLowerCase(); if(!q) return [];
-    var out=[];
+    var qn=norm(q); if(!qn) return [];
+    var out=[],seen={};
     index.forEach(function(it){
-      var s=it.head.indexOf(q)>=0?(it.concept?3:2):(it.body.indexOf(q)>=0?1:0);
+      var inHead=it.head.indexOf(q)>=0||atWordStart(it.headJ,qn);
+      var s=inHead?(it.concept?3:2):((it.body.indexOf(q)>=0||atWordStart(it.bodyJ,qn))?1:0);
+      if(s&&(it.titleL.indexOf(q)>=0||atWordStart(it.titleJ,qn))) s+=0.5;
       if(s) out.push({it:it,s:s});
     });
     out.sort(function(a,b){return b.s-a.s});
-    return out.slice(0,8).map(function(o){return o.it});
+    return out.filter(function(o){
+      var k=o.it.title+'|'+o.it.label; if(seen[k]) return false; seen[k]=1; return true;
+    }).slice(0,8).map(function(o){return o.it});
   }
+  function openItem(it){ if(it.url) location.href=it.url; else go(it.id) }
 
   var form=document.getElementById('searchform'),qEl=document.getElementById('q'),sugg=document.getElementById('sugg');
   var results=[],act=-1;
@@ -1627,7 +1752,7 @@ body.is-home{background:var(--bg)}
   }
   function pick(i){
     var it=results[i]; if(!it) return;
-    closeSugg(); qEl.blur(); go(it.id);
+    closeSugg(); qEl.blur(); openItem(it);
   }
   qEl.addEventListener('input',drawSugg);
   qEl.addEventListener('focus',drawSugg);
@@ -1645,7 +1770,7 @@ body.is-home{background:var(--bg)}
   });
   document.getElementById('lucky').addEventListener('click',function(){
     var cs=index.filter(function(it){return it.concept});
-    go(cs[Math.floor(Math.random()*cs.length)].id);
+    openItem(cs[Math.floor(Math.random()*cs.length)]);
   });
 
   /* ---------- navigation ---------- */
