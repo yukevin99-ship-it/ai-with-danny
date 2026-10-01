@@ -1,4 +1,6 @@
-# Netlify 배포 설정 — GitHub main 브랜치에 push하면 자동 배포돼요.
+# 예전 Netlify 사이트(ai-with-danny.netlify.app)용 설정이에요.
+# 지금 사이트는 GitHub Pages(https://yukevin99-ship-it.github.io/ai-with-danny/)에서 서비스되고,
+# Netlify 자동 배포는 꺼 두었어요(Stop builds). 수동으로 다시 배포할 때만 쓰여요.
 # 빌드 과정 없는 정적 사이트라서 저장소 최상위 폴더를 그대로 게시해요.
 [build]
   publish = "."
