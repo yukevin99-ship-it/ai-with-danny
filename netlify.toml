@@ -1,0 +1,5 @@
+# Netlify 배포 설정 — GitHub main 브랜치에 push하면 자동 배포돼요.
+# 빌드 과정 없는 정적 사이트라서 저장소 최상위 폴더를 그대로 게시해요.
+[build]
+  publish = "."
+  command = ""
