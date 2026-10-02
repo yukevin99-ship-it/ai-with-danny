@@ -10,7 +10,7 @@ window.SEMI_GLOSSARY = [
     ['dit', 'Dit (계면 결함 밀도)', 'dit interface trap density 계면 트랩', 1, '계면에 생긴 흠집의 개수예요. 흠집이 전자를 붙잡아 트랜지스터를 느리고 불안정하게 만들어요.'],
     ['yield', '수율', 'yield 양품률', 1, '만든 칩 중 정상인 칩의 비율이에요. 100개 중 90개가 정상이면 수율 90%예요. 반도체 회사의 돈과 바로 이어져요.'],
     ['cop', 'COP', 'cop crystal originated particle 결정 결함', 1, '결정을 키울 때 생기는 아주 작은 빈 구멍 결함이에요.'],
-    ['oxyprecip', '산소 석출', 'oxygen precipitate 석출물', 1, '실리콘 속 산소가 뭉쳐서 생긴 알갱이예요. 너무 많으면 결함이 돼요.'],
+    ['oxyprecip', '산소 석출', 'oxygen precipitate 석출물 gettering 게터링', 1, '실리콘 속 산소가 뭉쳐서 생긴 알갱이예요. 적당히 있으면 금속 오염을 붙잡아 두는 데 일부러 써요(게터링). 하지만 너무 많거나 칩이 만들어지는 표면 근처에 생기면 결함이 돼요.'],
     ['disloc', '선결함 (전위)', 'dislocation 전위', 1, '원자 줄이 한 줄 어긋난 결함이에요.'],
     ['power', '전력 반도체 · SiC · GaN', 'power semiconductor sic gan 탄화규소 질화갈륨 wide bandgap 와이드 밴드갭', 2, '전기차·충전기처럼 높은 전압과 큰 전류를 다루는 칩이에요. 밴드갭이 넓은 SiC(약 3.3 eV)와 GaN(3.4 eV)을 써서 높은 전압에도 버텨요.'],
     ['rf', 'RF 소자 · III-V 화합물', 'rf iii-v gaas 화합물 반도체 통신', 2, '통신처럼 아주 빠른 신호를 다루는 칩이에요. 전자가 가벼워 빠른 GaAs 같은 III-V 화합물(주기율표 3족 + 5족)을 써요.'],
@@ -38,7 +38,7 @@ window.SEMI_GLOSSARY = [
     ['vsat', '속도 포화', 'velocity saturation vsat', 6, '전압을 올려도 전자 속도가 일정 이상(약 10⁷ cm/s) 빨라지지 않는 현상이에요. 고속도로 제한 속도와 같아요.'],
     ['rs', '면저항 · 4-point probe', 'sheet resistance rs four point probe 4포인트', 7, '얇은 막의 저항(면저항)이에요. 바늘 4개를 꽂아 재는 장비(4-point probe)로 도핑이 잘 됐는지 매일 확인해요.'],
     ['dd', '드리프트-확산 방정식', 'drift diffusion equation', 7, '"바람에 밀려 가는 전자 + 퍼져 나가는 전자"를 함께 계산하는 식이에요. TCAD의 기본 엔진이에요.'],
-    ['pd', '포토다이오드 · 이미지센서', 'photodiode image sensor cis', 7, '빛을 전기로 바꾸는 소자예요. 스마트폰 카메라 이미지센서의 픽셀 하나하나가 이것이에요.']
+    ['pd', '포토다이오드 · 이미지센서', 'photodiode image sensor cis', 7, '빛을 전기로 바꾸는 소자예요. 스마트폰 카메라 이미지센서의 픽셀마다 하나씩 들어 있어요.']
   ]},
   { cat: '🕳️ 트랩과 메모리', notes: 'Note 8', items: [
     ['trap', '트랩', 'trap 결함 준위 함정', 8, '결정 결함이 만든 "전자 함정"이에요. 전자를 붙잡았다 놓았다 하며 전류를 새게 해요.'],
@@ -55,11 +55,11 @@ window.SEMI_GLOSSARY = [
     ['gidl', 'GIDL', 'gidl gate induced drain leakage', 9, '게이트와 드레인이 겹치는 곳에서 BTBT로 새는 누설이에요. DRAM 리텐션을 나쁘게 해요.'],
     ['parasitic', '기생 커패시턴스', 'parasitic capacitance 접합 커패시턴스', 10, '원하지 않았는데 저절로 생긴 커패시터예요. 신호를 느리게 해서 접합 면적을 줄여 최소화해요.'],
     ['bv', '항복 전압', 'breakdown voltage avalanche zener 애벌랜치 제너', 10, '역방향 전압을 올리다가 갑자기 전류가 터지는 한계 전압이에요. 전력 소자와 ESD 설계의 핵심 사양이에요.'],
-    ['ss', '서브스레숄드 스윙 · 60 mV/dec', 'subthreshold swing ss 60mv', 11, '꺼진 트랜지스터의 전류를 10배 늘리는 데 필요한 게이트 전압이에요. 상온에서 60 mV보다 작아질 수 없어서 칩 전압을 더 낮추기 어려워요.'],
+    ['ss', '서브스레숄드 스윙 · 60 mV/dec', 'subthreshold swing ss 60mv', 11, '꺼진 트랜지스터의 전류를 10배 늘리는 데 필요한 게이트 전압이에요. 일반 MOSFET은 상온에서 60 mV보다 작아질 수 없어서 칩 전압을 더 낮추기 어려워요.'],
     ['tfet', 'TFET', 'tfet tunnel fet 터널 트랜지스터', 11, '터널링을 이용해 60 mV/dec 한계를 넘으려는 차세대 트랜지스터예요.'],
     ['ideality', '이상 계수', 'ideality factor', 12, '실제 다이오드가 이상적인 식에서 얼마나 벗어났는지 나타내는 숫자(1~2)예요. 1에 가까울수록 트랩이 적은 좋은 소자예요.'],
     ['bgr', '밴드갭 기준 전압 회로', 'bandgap reference bgr', 12, '온도가 변해도 늘 같은 전압을 내는 회로예요. 다이오드가 온도에 민감한 성질을 거꾸로 이용해요.'],
-    ['fn', 'FN 터널링 · 플래시 메모리', 'fowler nordheim fn tunneling flash', 12, '강한 전기장으로 전자를 얇은 절연막 너머로 밀어 넣는 현상이에요. 플래시 메모리가 데이터를 쓰고 지울 때 써요.']
+    ['fn', 'FN 터널링 · 플래시 메모리', 'fowler nordheim fn tunneling flash', 12, '강한 전기장으로 전자를 얇은 절연막 너머로 밀어 넣는 현상이에요. NAND 플래시 메모리가 데이터를 쓰고 지울 때 써요.']
   ]},
   { cat: '🔌 금속과 반도체 연결', notes: 'Note 13~14', items: [
     ['schottky', '쇼트키 다이오드', 'schottky diode sbd', 13, '금속과 반도체를 붙여 만든 다이오드예요. 스위칭이 빨라서 충전기와 SiC 전력 소자에 써요.'],
