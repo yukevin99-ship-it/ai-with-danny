@@ -1820,10 +1820,11 @@ a.cartbar{text-decoration:none}
   window.addEventListener('load',function(){
     var h=(location.hash||'').slice(1);
     if(!/^c\d+(-\d+)?$/.test(h)) return;
-    setTimeout(function(){
+    function fix(){
       var el=document.getElementById(h);
-      if(el&&!document.getElementById('app').hidden) el.scrollIntoView({block:'start',behavior:'instant'});
-    },150);
+      if(el&&!document.getElementById('app').hidden&&(location.hash||'').slice(1)===h) el.scrollIntoView({block:'start',behavior:'instant'});
+    }
+    setTimeout(fix,150);setTimeout(fix,900);
   });
 })();
 </script>
