@@ -1456,6 +1456,7 @@ a.cartbar{text-decoration:none}
 <div class="foot">END OF LINE</div>
 </div>
 
+<script src="semi-glossary.js"></script>
 <script>
 (function(){
   var KEY='agent-notes-done';
@@ -1691,6 +1692,12 @@ a.cartbar{text-decoration:none}
   });
   SEMI.forEach(function(s){
     index.push({url:semiUrl(s[0],s[3]),title:s[1],label:semiLabel(s[0]),head:(s[1]+' '+s[2]).toLowerCase(),body:SEMI_NOTES[s[0]].toLowerCase(),concept:true});
+  });
+  /* 반도체 현업 용어집 (semi-glossary.js): 용어를 누르면 semiconductor.html의 용어 카드로 이동 */
+  (window.SEMI_GLOSSARY||[]).forEach(function(c){
+    c.items.forEach(function(g){
+      index.push({url:'semiconductor.html#g-'+g[0],title:g[1],label:'반도체 용어',head:(g[1]+' '+g[2]).toLowerCase(),body:g[4].toLowerCase(),concept:true});
+    });
   });
   /* 띄어쓰기·기호를 빼고도 찾되("문턱전압", "V_T", "C-V"), 단어 시작점에서만 맞춰서 우연한 일치를 막아요 */
   var SEP=/[\s_·\-–—()\/,.:]+/;

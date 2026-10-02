@@ -135,6 +135,35 @@ details.ch.sup.done .sec{color:var(--orange);text-shadow:var(--glow-o)}
 .btn{cursor:pointer;font:600 14px var(--sans);color:var(--bg);background:var(--cyan);border:0;padding:10px 18px;box-shadow:var(--glow);text-decoration:none;white-space:nowrap;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
 .btn:hover{filter:brightness(1.1)}
 @media (max-width:520px){.progress{grid-template-columns:minmax(0,1fr)}.progress .btn{justify-self:start}}
+/* 현업 용어집 */
+.gloss{margin-top:34px;scroll-margin-top:16px}
+.gloss-head{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
+.gloss-head .k{font-family:var(--display);font-size:11px;letter-spacing:.26em;color:var(--orange)}
+.gloss-head h2{margin:4px 0 0;font-size:clamp(22px,3vw,28px);font-weight:600}
+.gloss-head p{margin:6px 0 0;color:var(--soft);font-size:15px;max-width:62ch}
+.gfilter{flex:1 1 260px;max-width:360px;display:flex;align-items:center;gap:8px;border:1px solid var(--line-hi);background:var(--panel);padding:0 14px;height:44px}
+.gfilter:focus-within{border-color:var(--cyan)}
+.gfilter input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font:400 15px var(--sans)}
+.gfilter input::placeholder{color:#5B7F8B}
+.gtop{border:1px solid var(--orange);background:rgba(255,157,63,.05);padding:14px 16px;margin-bottom:14px}
+.gtop h3{margin:0 0 8px;font-size:15px;color:var(--orange)}
+.gtop ol{margin:0;padding-left:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px 18px;counter-reset:t}
+.gtop li{counter-increment:t;display:grid;grid-template-columns:24px minmax(0,1fr);gap:8px;font-size:14px;color:var(--soft)}
+.gtop li::before{content:counter(t);font:700 12px var(--display);color:var(--orange);padding-top:2px}
+.gtop a{color:var(--text);font-weight:600;text-decoration:none;border-bottom:1px solid var(--line-hi)}
+.gtop a:hover{color:var(--cyan);border-color:var(--cyan)}
+.gcat{border:1px solid var(--line);background:var(--panel);margin-top:10px}
+.gcat h3{margin:0;padding:12px 16px;font-size:16px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.gcat h3 small{font:500 11px var(--display);letter-spacing:.16em;color:var(--soft)}
+.gterms{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--line)}
+.term{background:var(--panel);padding:12px 16px;scroll-margin-top:80px}
+.term b{display:block;color:var(--cyan);font-weight:600;font-size:15px}
+.term p{margin:4px 0 6px;font-size:14px;line-height:1.65}
+.term a{font:600 10px var(--display);letter-spacing:.14em;color:var(--soft);text-decoration:none;border:1px solid var(--line-hi);padding:2px 7px}
+.term a:hover{color:var(--cyan);border-color:var(--cyan)}
+.gempty{padding:16px;color:var(--soft);font-size:14px;border:1px dashed var(--line-hi);margin-top:10px}
+.toc-gloss{display:inline-flex;align-items:center;gap:8px;margin-top:10px;border:1px solid var(--orange);color:var(--orange);text-decoration:none;padding:8px 14px;font-size:14px;font-weight:600}
+.toc-gloss:hover{background:rgba(255,157,63,.08);box-shadow:var(--glow-o)}
 .flash{animation:flash 2.4s ease-out}
 @keyframes flash{0%,45%{background:rgba(255,157,63,.18);box-shadow:inset 3px 0 0 var(--orange)}100%{background:transparent;box-shadow:none}}
 .foot{max-width:1080px;margin:48px auto 0;font-family:var(--display);font-size:10px;letter-spacing:.3em;color:var(--cyan-dim);text-align:center}
@@ -188,6 +217,8 @@ details.ch.sup.done .sec{color:var(--orange);text-shadow:var(--glow-o)}
     <li><a href="#n17"><i>17</i>V_T·C–V</a></li>
     <li><a href="#n18"><i>18</i>MOSFET I–V</a></li>
   </ol>
+
+  <a class="toc-gloss" href="#glossary">📖 현업 용어집 바로가기 (용어 70여 개 쉬운 풀이)</a>
 
   <div class="bar">
     <p>노트 제목을 누르면 펼쳐져요.</p>
@@ -925,6 +956,20 @@ C_min ········╲─────────────────  �
 
   </div>
 
+  <section class="gloss" id="glossary" aria-labelledby="gloss-h">
+    <div class="gloss-head">
+      <div>
+        <div class="k">FIELD GLOSSARY</div>
+        <h2 id="gloss-h">현업 용어집</h2>
+        <p>노트의 "현업 포인트"에 나온 전문용어를 쉬운 말로 풀었어요. 관련 노트 버튼을 누르면 그 노트로 이동해요.</p>
+      </div>
+      <label class="gfilter"><span aria-hidden="true">🔎</span><input id="gq" type="search" placeholder="용어 찾기 (예: 수율, GIDL, EOT)" aria-label="용어집에서 찾기"></label>
+    </div>
+    <div class="gtop" id="gtop"><h3>🎯 면접·현업에서 가장 많이 나오는 키워드 TOP 10</h3><ol id="gtoplist"></ol></div>
+    <div id="glist"></div>
+    <div class="gempty" id="gempty" hidden></div>
+  </section>
+
   <section class="finale" aria-labelledby="finale-h">
     <div class="k">SUMMARY</div>
     <h2 id="finale-h">전체 흐름 한 장 요약</h2>
@@ -959,8 +1004,44 @@ C_min ········╲─────────────────  �
 
 <p class="foot">AI WITH DANNY · SEMICONDUCTOR DEVICES</p>
 
+<script src="semi-glossary.js"></script>
 <script>
 (function(){
+  /* 현업 용어집: semi-glossary.js 데이터로 그리기 (홈 검색도 같은 데이터를 써요) */
+  var G=window.SEMI_GLOSSARY||[],TOP=window.SEMI_GLOSSARY_TOP||[],gnames={};
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+  function pad2(n){return (n<10?'0':'')+n}
+  var glist=document.getElementById('glist');
+  G.forEach(function(c){
+    var box=el('div','gcat'),h=el('h3',null,c.cat);h.appendChild(el('small',null,c.notes));box.appendChild(h);
+    var grid=el('div','gterms');
+    c.items.forEach(function(it){
+      gnames[it[0]]=it[1];
+      var t=el('div','term');t.id='g-'+it[0];t.setAttribute('data-s',(it[1]+' '+it[2]+' '+it[4]).toLowerCase());
+      t.appendChild(el('b',null,it[1]));t.appendChild(el('p',null,it[4]));
+      var a=el('a',null,'NOTE '+pad2(it[3])+' →');a.href='#n'+it[3];t.appendChild(a);
+      grid.appendChild(t);
+    });
+    box.appendChild(grid);glist.appendChild(box);
+  });
+  var gtop=document.getElementById('gtoplist');
+  TOP.forEach(function(x){
+    if(!gnames[x[0]]) return;
+    var li=el('li'),d=el('div'),a=el('a',null,gnames[x[0]]);a.href='#g-'+x[0];
+    d.appendChild(a);d.appendChild(document.createTextNode(' — '+x[1]));li.appendChild(d);gtop.appendChild(li);
+  });
+  var gq=document.getElementById('gq'),gempty=document.getElementById('gempty');
+  gq.addEventListener('input',function(){
+    var q=gq.value.trim().toLowerCase(),shown=0;
+    [].forEach.call(glist.querySelectorAll('.gcat'),function(box){
+      var any=false;
+      [].forEach.call(box.querySelectorAll('.term'),function(t){var ok=!q||t.getAttribute('data-s').indexOf(q)>=0;t.hidden=!ok;if(ok){any=true;shown++}});
+      box.hidden=!any;
+    });
+    document.getElementById('gtop').hidden=!!q;
+    gempty.hidden=shown>0;gempty.textContent='"'+gq.value.trim()+'"에 맞는 용어가 없어요. 홈 검색창이나 노트 본문에서도 찾아보세요.';
+  });
+
   var btn=document.getElementById('toggleall');
   var all=[].slice.call(document.querySelectorAll('details.ch'));
   function sync(){btn.textContent=all.every(function(d){return d.open})?'모두 접기':'모두 펼치기'}
@@ -989,6 +1070,12 @@ C_min ········╲─────────────────  �
     if(el&&el.tagName==='DETAILS'){
       el.open=true;sync();
       if(!(first===true&&highlight(el))) requestAnimationFrame(function(){el.scrollIntoView({block:'start'})});
+    }else if(el&&el.classList.contains('term')){
+      /* 홈 검색·TOP 10에서 용어 카드로 왔을 때: 그 카드로 이동해서 강조 */
+      requestAnimationFrame(function(){
+        el.scrollIntoView({block:'center'});
+        el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');
+      });
     }
   }
   window.addEventListener('hashchange',openHash);openHash(true);
