@@ -536,6 +536,9 @@ a.cartbar{text-decoration:none}
 .cartbar.semibar:hover{border-color:var(--cyan)}
 .cartbar.semibar svg{stroke:var(--cyan)}
 .cartbar.semibar .live{color:var(--cyan);border-color:var(--cyan)}
+.cartbar.casebar:hover{border-color:var(--orange)}
+.cartbar.casebar svg{stroke:var(--orange)}
+.cartbar.casebar .live{color:var(--orange);border-color:var(--orange)}
 
 .home-foot{margin-top:auto;padding-top:56px;font-size:12px;color:#5B7F8B;text-align:center;letter-spacing:.02em}
 
@@ -593,6 +596,12 @@ a.cartbar{text-decoration:none}
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>
       <span class="ct"><b>반도체소자</b><small>강의노트 1~18 · 쉬운 설명, 핵심 수식, 현업 포인트, AI 활용</small></span>
       <span class="live">NOTES</span>
+    </a>
+
+    <a class="cartbar semibar casebar" href="agent-case.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="7" width="14" height="11" rx="2"/><path d="M12 3v4M9 12h.01M15 12h.01M9 15.5h6M2 12h3M19 12h3"/></svg>
+      <span class="ct"><b>실전 사례: AI 에이전트가 일한 과정</b><small>12개 장의 개념이 실제 작업에 어떻게 쓰였는지, 장마다 바로가기</small></span>
+      <span class="live">CASE</span>
     </a>
 
     <div class="shortcuts" aria-label="장 바로가기">
@@ -1693,6 +1702,14 @@ a.cartbar{text-decoration:none}
   SEMI.forEach(function(s){
     index.push({url:semiUrl(s[0],s[3]),title:s[1],label:semiLabel(s[0]),head:(s[1]+' '+s[2]).toLowerCase(),body:SEMI_NOTES[s[0]].toLowerCase(),concept:true});
   });
+  /* 실전 사례 페이지 (agent-case.html) */
+  [['s0','실전 사례: AI 에이전트가 일한 과정','실전 사례 case study 에이전트 일한 과정 how the agent worked'],
+   ['s5','실전 사례 · 덮어쓰기 사고 수습','동시성 git 재해 복구 덮어쓰기 사고'],
+   ['s6','실전 사례 · GitHub Pages로 이사','서킷 브레이커 트레이드오프 github pages 이사 netlify 크레딧'],
+   ['s7','실전 사례 · 안전하게 일하기','oauth 최소 권한 비밀 관리 사람 확인 가드레일']
+  ].forEach(function(c){
+    index.push({url:'agent-case.html#'+c[0],title:c[1],label:'실전 사례',head:(c[1]+' '+c[2]).toLowerCase(),body:'',concept:true});
+  });
   /* 반도체 현업 용어집 (semi-glossary.js): 용어를 누르면 semiconductor.html의 용어 카드로 이동 */
   (window.SEMI_GLOSSARY||[]).forEach(function(c){
     c.items.forEach(function(g){
@@ -1798,6 +1815,16 @@ a.cartbar{text-decoration:none}
 
   render();
   route();
+  /* 다른 페이지(실전 사례 등)에서 #c7-1 같은 주소로 처음 들어오면, 지도·글꼴이 늦게 그려지며 높이가 바뀌어
+     부드러운 스크롤이 끊겨요. 다 그려진 뒤 그 개념 위치로 한 번 더 바로 이동해요. */
+  window.addEventListener('load',function(){
+    var h=(location.hash||'').slice(1);
+    if(!/^c\d+(-\d+)?$/.test(h)) return;
+    setTimeout(function(){
+      var el=document.getElementById(h);
+      if(el&&!document.getElementById('app').hidden) el.scrollIntoView({block:'start',behavior:'instant'});
+    },150);
+  });
 })();
 </script>
 

@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>실전 사례 · AI with Danny</title>
+<meta name="description" content="반도체 노트 정리부터 웹사이트 배포까지, AI 에이전트가 실제로 일한 과정을 AI with Danny 12개 장의 개념으로 12살 눈높이에 맞춰 풀어 쓴 실전 사례">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#03060A;--panel:#07101A;--panel-2:#0A1622;--line:#123241;--line-hi:#1E5A6E;
+  --cyan:#6FE6FF;--cyan-mid:#2FB8D6;--cyan-dim:#0F4452;--text:#DCF7FF;--soft:#86AEBB;
+  --orange:#FF9D3F;--orange-dim:#3A1F08;
+  --glow:0 0 6px rgba(111,230,255,.55),0 0 18px rgba(111,230,255,.22);
+  --glow-o:0 0 6px rgba(255,157,63,.55),0 0 18px rgba(255,157,63,.2);
+  --display:"Orbitron","IBM Plex Sans KR",system-ui,sans-serif;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.75;padding-inline:16px;padding-block:0 72px;word-break:keep-all;overflow-wrap:anywhere}
+a{color:var(--cyan)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+
+.hero{position:relative;max-width:980px;margin:0 auto;padding-block:40px 110px;overflow:hidden;isolation:isolate}
+.hero::before{content:"";position:absolute;left:-50%;right:-50%;bottom:-40px;height:200px;z-index:-1;
+  background-image:linear-gradient(var(--cyan-dim) 1px,transparent 1px),linear-gradient(90deg,var(--cyan-dim) 1px,transparent 1px);
+  background-size:48px 48px;transform:perspective(320px) rotateX(62deg);transform-origin:bottom center;
+  mask-image:linear-gradient(to top,#000 20%,transparent 95%);-webkit-mask-image:linear-gradient(to top,#000 20%,transparent 95%);
+  animation:gridmove 6s linear infinite}
+@keyframes gridmove{from{background-position:0 0}to{background-position:0 48px}}
+.homebtn{display:inline-flex;align-items:center;gap:8px;margin-bottom:22px;border:1px solid var(--line-hi);color:var(--cyan);font:500 13px var(--sans);padding:6px 14px;text-decoration:none}
+.homebtn:hover{border-color:var(--cyan);box-shadow:var(--glow)}
+.sys{font-family:var(--display);font-size:12px;letter-spacing:.28em;color:var(--orange);text-shadow:var(--glow-o)}
+h1{font-family:var(--sans);font-weight:700;font-size:clamp(30px,6vw,56px);line-height:1.2;margin:16px 0 12px}
+h1 b{color:var(--orange);text-shadow:var(--glow-o)}
+.kicker{font-size:clamp(17px,2.4vw,21px);font-weight:300;margin:0 0 14px}
+.kicker b{font-weight:600;color:var(--cyan)}
+.lede{max-width:66ch;color:var(--soft);margin:0}
+
+.formula{margin-top:24px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:15px}
+.formula .part{border:1px solid var(--line-hi);background:rgba(7,16,26,.75);padding:8px 14px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.formula .part.em{border-color:var(--cyan);color:var(--cyan)}
+.formula .op{font-family:var(--display);color:var(--soft)}
+
+.shell{max-width:980px;margin:-70px auto 0;position:relative}
+.toc{border:1px solid var(--line-hi);background:var(--panel);padding:16px 20px}
+.toc .k{font-family:var(--display);font-size:11px;letter-spacing:.26em;color:var(--cyan)}
+.toc ol{margin:8px 0 0;padding-left:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:4px 18px;counter-reset:t}
+.toc li{counter-increment:t}
+.toc a{display:grid;grid-template-columns:28px minmax(0,1fr);gap:6px;color:var(--text);text-decoration:none;padding:4px 0;font-size:15px}
+.toc a::before{content:counter(t,decimal-leading-zero);font:700 12px var(--display);color:var(--orange);padding-top:3px}
+.toc li:first-child a::before{content:"00"}
+.toc a:hover{color:var(--cyan)}
+.howto{margin-top:12px;font-size:14px;color:var(--soft)}
+.howto .cl{pointer-events:none}
+
+section.step{margin-top:34px;scroll-margin-top:16px}
+.step-h{display:flex;gap:14px;align-items:baseline;border-bottom:1px solid var(--line-hi);padding-bottom:8px;margin-bottom:14px}
+.step-h .n{font:900 26px var(--display);color:var(--orange);text-shadow:var(--glow-o);line-height:1}
+.step-h h2{margin:0;font-size:clamp(20px,3vw,25px);font-weight:600;line-height:1.35}
+.step-h h2 small{display:block;font-size:14px;color:var(--soft);font-weight:400}
+.step > p{max-width:72ch;color:var(--soft);margin:0 0 12px}
+
+.c{border:1px solid var(--line);background:var(--panel);padding:16px 18px;margin-top:10px}
+.c h3{margin:0 0 6px;font-size:17px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.cl{display:inline-flex;align-items:center;gap:6px;font:600 12px var(--sans);color:var(--cyan);border:1px solid var(--cyan-mid);background:rgba(111,230,255,.06);padding:2px 10px;text-decoration:none;white-space:nowrap}
+.cl:hover{border-color:var(--cyan);box-shadow:var(--glow)}
+.cl.o{color:var(--orange);border-color:rgba(255,157,63,.6);background:rgba(255,157,63,.06)}
+.c p,.c ul{margin:6px 0;max-width:74ch}
+.c ul{padding-left:20px}
+.c li{margin:3px 0}
+.c li::marker{color:var(--cyan-mid)}
+.kid{margin-top:10px;border-left:2px solid var(--orange);background:rgba(255,157,63,.07);padding:8px 12px;font-size:15px}
+.kid b{color:var(--orange)}
+strong{font-weight:600;color:var(--text)}
+mark{background:none;color:var(--cyan);border-bottom:1px solid var(--cyan-mid);padding:0 1px}
+code{font-family:var(--mono);font-size:.86em;color:var(--cyan);background:rgba(111,230,255,.08);padding:1px 5px}
+
+.tbl{overflow-x:auto;margin:10px 0;max-width:100%}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:15px;border:1px solid var(--line)}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--cyan);font-weight:600;letter-spacing:.06em;background:var(--panel-2)}
+tr:last-child td{border-bottom:0}
+td .cl{margin:2px 4px 2px 0}
+
+.finale{margin-top:34px;border:1px solid var(--cyan);padding:20px 22px;box-shadow:inset 0 0 30px rgba(111,230,255,.07)}
+.finale .k{font-family:var(--display);font-size:11px;letter-spacing:.26em;color:var(--cyan)}
+.finale p{margin:8px 0 0;font-size:17px;max-width:70ch}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;font-size:14px}
+.flow span{border:1px solid var(--line-hi);padding:5px 11px;background:var(--panel)}
+.flow i{font-style:normal;color:var(--cyan-mid)}
+.foot{max-width:980px;margin:48px auto 0;font-family:var(--display);font-size:10px;letter-spacing:.3em;color:var(--cyan-dim);text-align:center}
+@media (max-width:520px){.c{padding:14px}.step-h .n{font-size:22px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <a class="homebtn" href="./">← AI with Danny 홈</a>
+  <div class="sys">// FIELD CASE · HOW THE AGENT WORKED</div>
+  <h1>실전 사례: <b>AI 에이전트</b>가 일한 과정</h1>
+  <p class="kicker">반도체 노트 정리부터 웹사이트 이사까지, <b>12개 장의 개념이 실제로 어떻게 쓰였는지</b></p>
+  <p class="lede">사람이 AI 에이전트(Claude)에게 부탁한 일을 에이전트가 어떻게 해냈는지, 이 사이트 12개 장에 나오는 개념어로 12살 눈높이에 맞춰 풀어 썼어요. 개념 옆 <span class="cl" style="pointer-events:none">7장 · 재시도 →</span> 버튼을 누르면 그 장의 설명으로 바로 가요.</p>
+  <div class="formula" aria-label="AI 에이전트 공식">
+    <span class="part em">두뇌 (AI 모델)</span><span class="op">+</span>
+    <span class="part">손발 (API · 도구)</span><span class="op">+</span>
+    <span class="part">튼튼한 구조 (시스템)</span><span class="op">=</span>
+    <span class="part em">AI 에이전트</span>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="toc" aria-label="목차">
+    <div class="k">CONTENTS</div>
+    <ol>
+      <li><a href="#s0">한 줄 요약: 나는 어떤 일꾼이었을까?</a></li>
+      <li><a href="#s1">부탁 알아듣기: 프롬프트와 입구 검사</a></li>
+      <li><a href="#s2">PDF 읽기: 도구, 페이지네이션, 재시도</a></li>
+      <li><a href="#s3">정리하고 검사받기: 출구 검사와 Eval</a></li>
+      <li><a href="#s4">웹사이트 만들기: 서버, 인덱스, 저장, 캐시</a></li>
+      <li><a href="#s5">사고 수습하기: 동시성, Git, 재해 복구</a></li>
+      <li><a href="#s6">이사하기: 서킷 브레이커, 트레이드오프, CI/CD</a></li>
+      <li><a href="#s7">안전하게 일하기: OAuth, 최소 권한, 사람 확인</a></li>
+      <li><a href="#s8">소식 전하기: 하트비트, 로그, 상태 코드</a></li>
+      <li><a href="#s9">한눈에 보는 연결표</a></li>
+      <li><a href="#s10">돌아보기: 더 잘할 수 있었던 점</a></li>
+    </ol>
+  </nav>
+
+  <!-- 0 -->
+  <section class="step" id="s0">
+    <div class="step-h"><span class="n">00</span><h2>한 줄 요약: 나는 어떤 일꾼이었을까?<small>두뇌 + 손발 + 튼튼한 구조 = AI 에이전트</small></h2></div>
+    <div class="c">
+      <h3>AI 에이전트 <a class="cl" href="./#c11-1">11장 · 전체 흐름 →</a></h3>
+      <ul>
+        <li><strong>두뇌</strong>: 부탁을 이해하고 계획을 세웠어요. 반도체 내용을 정리하고, 문제가 생긴 원인을 추리했어요.</li>
+        <li><strong>손발</strong>: 컴퓨터 명령어, 파일 읽기·쓰기, 브라우저, GitHub·Netlify 도구를 직접 썼어요.</li>
+        <li><strong>튼튼한 구조</strong>: 백업, 검사, 기록(Git), 실패했을 때 다른 길 찾기예요.</li>
+      </ul>
+      <div class="kid">🧒 <b>비유:</b> 두뇌만 있는 친구는 "숙제를 이렇게 하면 돼"라고 말만 해요. 손발이 있는 친구는 직접 숙제를 해 와요. 튼튼한 구조까지 있는 친구는 공책이 찢어져도 복사본이 있어서 다시 할 수 있어요.</div>
+    </div>
+  </section>
+
+  <!-- 1 -->
+  <section class="step" id="s1">
+    <div class="step-h"><span class="n">01</span><h2>부탁 알아듣기<small>프롬프트 · 입구 검사 · 트랜스포머의 주목</small></h2></div>
+    <p>처음 부탁: "반도체소자 노트 1~18을 초등학생에게 설명하듯, 수식과 그림을 쓰고, AI가 풀 수 있는 문제도 요약해 줘."</p>
+    <div class="c">
+      <h3>프롬프트 <a class="cl" href="./#c11-1">11장 · 프롬프트 → 에이전트 → 답변 →</a></h3>
+      <p>사람이 AI에게 보내는 부탁 문장이에요.</p>
+      <div class="kid">🧒 <b>비유:</b> 식당에서 내는 <b>주문서</b>예요.</div>
+    </div>
+    <div class="c">
+      <h3>입구 검사 (가드레일) <a class="cl" href="./#c10-2">10장 · 질문에 답하는 과정 →</a></h3>
+      <p>AI는 부탁을 받으면 먼저 "할 수 있나? 빠진 건 없나?"를 확인해요. 폴더를 뒤져 보니 <strong>노트 파일이 없고 다른 PDF 하나뿐</strong>이었어요. 그래서 내용을 지어내지 않고 "노트 파일을 넣어 주세요"라고 먼저 물었어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 요리사가 주문서를 보고 "손님, 재료가 없는데 어떻게 할까요?"라고 <b>먼저 물어보는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>트랜스포머의 주목 (Attention) <a class="cl" href="./#c10-3">10장 · 생성형 AI 지도 →</a></h3>
+      <p>지금 AI의 뼈대인 트랜스포머는 문장에서 중요한 단어끼리 연결해서 읽어요. "노트 1~18", "초등학교 5학년", "수식과 그림", "AI가 풀 문제 3~5줄"에 주목해서, 노트마다 같은 틀(쉬운 설명 → 수식 → 그림 → 현업 → AI)로 정리했어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 긴 숙제 안내문에서 <b>형광펜으로 중요한 부분만 칠하는 것</b>이에요.</div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2">
+    <div class="step-h"><span class="n">02</span><h2>PDF 읽기<small>API·SDK · 재시도 전략 · 페이지네이션</small></h2></div>
+    <div class="c">
+      <h3>API와 SDK <a class="cl" href="./#c2-1">2장 · API와 SDK →</a></h3>
+      <p>API는 프로그램끼리 대화하는 약속, SDK는 그 약속을 쉽게 쓰게 해 주는 도구 상자예요. PDF를 그림으로 바꾸려고 <code>pdf.js</code>라는 도구 상자를 빌려 썼어요.</p>
+      <div class="kid">🧒 <b>비유:</b> API는 <b>식당 메뉴판</b>, SDK는 <b>주문을 대신 넣어 주는 태블릿</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>재시도 전략 (Retry) <a class="cl" href="./#c7-1">7장 · 재시도 전략 →</a></h3>
+      <p>PDF를 읽는 길이 여러 번 막혔어요. 그때마다 <strong>방법을 바꿔서</strong> 다시 시도했어요.</p>
+      <div class="tbl"><table>
+        <tr><th>시도</th><th>결과</th><th>다음 행동</th></tr>
+        <tr><td>기본 PDF 읽기 도구</td><td>❌ 그림 변환 프로그램이 없음</td><td>글자만 뽑아 보기</td></tr>
+        <tr><td>글자만 뽑기</td><td>⚠️ 수식과 그림이 빠짐</td><td>페이지를 그림으로 바꾸기</td></tr>
+        <tr><td>pdf.js 옛 버전</td><td>❌ 프로그램이 멈춤</td><td>최신 버전으로 바꾸기</td></tr>
+        <tr><td>pdf.js 최신 버전</td><td>✅ 성공</td><td>그림으로 읽기</td></tr>
+      </table></div>
+      <div class="kid">🧒 <b>비유:</b> 문이 잠겨 있으면 <b>같은 문을 계속 두드리지 않고 창문이나 뒷문을 찾는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>페이지네이션 (Pagination) <a class="cl" href="./#c2-3">2장 · 페이지네이션 →</a></h3>
+      <p>노트는 모두 약 250쪽이었어요. 한꺼번에 읽으면 AI의 머릿속 책상(<mark>컨텍스트 창</mark>)이 넘쳐요. 그래서 4쪽씩 한 장에 모아 나눠 읽었어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 두꺼운 책을 <b>한 챕터씩 나눠 읽는 것</b>이에요.</div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3">
+    <div class="step-h"><span class="n">03</span><h2>정리하고 검사받기<small>출구 검사 · Eval · 회귀 테스트</small></h2></div>
+    <div class="c">
+      <h3>출구 검사 <a class="cl" href="./#c10-2">10장 · 질문에 답하는 과정 →</a></h3>
+      <p>답이 사람에게 가기 전에 한 번 더 검사하는 단계예요. "팩트체크해 줘"라는 부탁에 노트 원본과 다시 비교하고, <strong>예제 계산 13개를 프로그램으로 처음부터 다시 계산</strong>했어요. 그러다 틀린 곳(GaAs 예제의 이동도 7500 → 8500, 답 136 A/cm²)을 찾아 고쳤어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 시험지를 내기 전에 <b>검산하는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>Eval과 자동 시험 <a class="cl" href="./#c8-4">8장 · CI/CD와 Eval →</a></h3>
+      <p>AI가 잘했는지 채점하는 시험을 Eval이라고 해요. 이런 자동 시험을 만들어 돌렸어요.</p>
+      <ul>
+        <li>검색 항목 81개가 모두 노트 안에서 강조할 위치를 찾는지</li>
+        <li>"depletion"을 검색하면 공핍층이 1위로 나오는지</li>
+        <li>용어 70개의 이름표가 겹치지 않는지</li>
+      </ul>
+    </div>
+    <div class="c">
+      <h3>회귀 테스트 <a class="cl" href="./#c8-5">8장 · 테스트 종류 →</a></h3>
+      <p>고칠 때마다 <strong>예전에 되던 기능이 아직도 되는지</strong>("멱등성", "캐시" 검색 등) 함께 확인했어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 새 블록을 쌓은 뒤 <b>아래층 블록이 무너지지 않았는지 확인하는 것</b>이에요.</div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4">
+    <div class="step-h"><span class="n">04</span><h2>웹사이트 만들기<small>클라이언트·서버 · 인덱스 · 데이터 저장 · 캐시와 CDN</small></h2></div>
+    <div class="c">
+      <h3>클라이언트와 서버 <a class="cl" href="./#c1-1">1장 · 클라이언트와 서버 →</a></h3>
+      <p>클라이언트는 여러분의 브라우저(손님), 서버는 사이트 파일을 내주는 곳(주방)이에요. 반도체 노트 페이지라는 새 요리를 만들어 주방에 올렸어요.</p>
+    </div>
+    <div class="c">
+      <h3>인덱스 (Index) <a class="cl" href="./#c4-4">4장 · 인덱스 →</a></h3>
+      <p>홈 검색창이 "공핍층"을 빨리 찾도록 <strong>찾아보기 목록</strong>을 만들었어요(반도체 개념 81개 + 용어 70개). 띄어쓰기가 달라도("문턱전압" / "문턱 전압") 찾을 수 있어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 두꺼운 백과사전 <b>맨 뒤의 "찾아보기"</b> 쪽이에요.</div>
+    </div>
+    <div class="c">
+      <h3>데이터 저장 <a class="cl" href="./#c4-1">4장 · 데이터베이스 종류 →</a></h3>
+      <p>"이해했어요" 체크는 브라우저의 작은 서랍(<code>localStorage</code>)에 저장해서, 다시 들어와도 진도가 남아 있어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 학교 사물함이 아니라 <b>내 책상 서랍</b>이에요. 그래서 다른 기기에서는 진도가 따로 보여요.</div>
+    </div>
+    <div class="c">
+      <h3>한 곳에 모으기 <span class="cl o">보너스 개념</span></h3>
+      <p>용어집 데이터는 파일 <strong>한 곳</strong>에만 두고, 반도체 페이지와 홈 검색이 둘 다 그 파일을 읽게 했어요. 한 곳만 고치면 두 곳이 같이 바뀌어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 반 친구 연락처를 공책 두 권에 따로 적으면 헷갈리죠? <b>한 권에만 적고 모두가 그걸 보는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>캐시와 CDN <a class="cl" href="./#c5-1">5장 · 캐시 →</a> <a class="cl" href="./#c5-4">5장 · CDN →</a></h3>
+      <p>브라우저는 예전에 받은 페이지를 기억해 둬요(캐시). 그래서 "예전 화면이 보이면 Ctrl+F5"라고 안내했어요. 사이트 파일은 여러 창고에 미리 복사되어 있어서(CDN), 같은 파일을 다시 올리면 "새로 올릴 파일 0개"가 나오기도 했어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 캐시는 <b>자주 보는 책을 가방에 넣어 두는 것</b>이에요. 빠르지만, 도서관 책이 새 판으로 바뀌어도 가방 속 책은 옛날 판이에요.</div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5">
+    <div class="step-h"><span class="n">05</span><h2>사고 수습하기<small>동시성 · Git · 재해 복구 · 멱등성</small></h2></div>
+    <div class="c">
+      <h3>동시성 문제 <a class="cl" href="./#c7-7">7장 · 락과 동시성 →</a></h3>
+      <p>어느 날 새벽, 다른 작업자(다른 AI 세션)가 같은 파일을 <strong>예전 사본</strong>을 바탕으로 고쳐 올리는 바람에, 홈의 반도체 버튼이 <strong>덮어써져 사라졌어요.</strong></p>
+      <div class="kid">🧒 <b>비유:</b> 두 친구가 같은 그림을 각자 복사해 색칠했는데, 나중에 낸 친구 그림만 게시판에 붙어서 먼저 칠한 색이 사라진 거예요.</div>
+    </div>
+    <div class="c">
+      <h3>Git: 코드가 머무는 네 곳 <a class="cl" href="./#c8-1">8장 · Git →</a></h3>
+      <div class="tbl"><table>
+        <tr><th>장소</th><th>비유</th></tr>
+        <tr><td>작업 폴더</td><td>지금 쓰는 <b>연습장</b></td></tr>
+        <tr><td>스테이징</td><td>"이거 저장할게" 하고 <b>골라 둔 페이지</b></td></tr>
+        <tr><td>내 PC 저장소 (커밋)</td><td>날짜와 메모를 붙여 <b>일기장에 기록</b></td></tr>
+        <tr><td>GitHub (push)</td><td>일기장을 <b>학교 사물함에 보관</b></td></tr>
+      </table></div>
+      <p>"git pull 먼저 하고, 고친 뒤 커밋해서 push해 줘"는 <strong>사물함에서 최신 일기장 꺼내 보기 → 고치기 → 기록하기 → 다시 넣기</strong> 순서예요.</p>
+    </div>
+    <div class="c">
+      <h3>재해 복구: RTO와 RPO <a class="cl" href="./#c7-6">7장 · 재해 복구 →</a></h3>
+      <p>RPO는 "사고가 나면 얼마만큼 잃어도 되나", RTO는 "얼마나 빨리 살려야 하나"예요. 고치기 전마다 백업을 만들어 둔 덕분에, 새 버전은 살리고 사라진 부분만 다시 넣어 금방 복구했어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 게임의 <b>세이브 포인트</b>예요. 자주 저장할수록 조금만 다시 하면 돼요.</div>
+    </div>
+    <div class="c">
+      <h3>멱등성 (Idempotency) <a class="cl" href="./#c7-2">7장 · 멱등성 →</a></h3>
+      <p>같은 일을 두 번 해도 한 번 한 것과 결과가 같은 성질이에요. 복구할 때 바뀐 줄이 <strong>딱 필요한 6곳뿐인지</strong> 확인해서, 두 번 넣거나 남의 작업을 지우는 사고를 막았어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 엘리베이터 버튼은 <b>여러 번 눌러도 한 번만 와요.</b></div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6">
+    <div class="step-h"><span class="n">06</span><h2>이사하기<small>서킷 브레이커 · 트레이드오프 · CI/CD · 웹훅과 폴링 · 타임아웃</small></h2></div>
+    <div class="c">
+      <h3>서킷 브레이커 (Circuit Breaker) <a class="cl" href="./#c7-3">7장 · 서킷 브레이커 →</a></h3>
+      <p>예전 호스팅(Netlify)이 "무료 사용량(크레딧)을 다 썼어요"라며 배포를 거부했어요. 계속 다시 시도하지 않고 <strong>그 길을 끊었어요</strong>(자동 배포 끄기, 연결선 지우기).</p>
+      <div class="kid">🧒 <b>비유:</b> 집의 <b>차단기(두꺼비집)</b>예요. 전기가 너무 많이 흐르면 딱 끊어서 불이 나지 않게 해요.</div>
+    </div>
+    <div class="c">
+      <h3>트레이드오프 <a class="cl" href="./#c9-2">9장 · 모든 것은 트레이드오프 →</a></h3>
+      <div class="tbl"><table>
+        <tr><th>선택지</th><th>얻는 것</th><th>잃는 것</th></tr>
+        <tr><td>크레딧 다시 채워질 때까지 기다리기</td><td>돈 0원</td><td>그동안 수정 반영 안 됨</td></tr>
+        <tr><td><strong>GitHub Pages로 이사 (선택)</strong></td><td>무료, 배포 제한 없음</td><td>사이트 주소가 바뀜</td></tr>
+        <tr><td>유료 플랜</td><td>주소 그대로</td><td>매달 돈</td></tr>
+      </table></div>
+    </div>
+    <div class="c">
+      <h3>CI/CD <a class="cl" href="./#c8-4">8장 · CI/CD →</a></h3>
+      <p>코드를 올리면 사이트가 자동으로 바뀌는 것(자동 배포)이에요. 지금은 push 한 번이면 1분쯤 뒤 사이트에 반영돼요.</p>
+      <div class="kid">🧒 <b>비유:</b> 편지를 우체통에 넣으면 <b>우체부가 알아서 배달해 주는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>웹훅과 폴링 <a class="cl" href="./#c2-4">2장 · Polling과 Webhook →</a></h3>
+      <ul>
+        <li><strong>웹훅</strong>: 일이 생기면 상대가 먼저 알려 줘요. GitHub에 코드가 올라오면 배포 서비스에 "새 코드 왔어!"라고 알려 주는 연결선을 설치했었어요.</li>
+        <li><strong>폴링</strong>: 내가 계속 물어봐요. 배포가 끝났는지 8~10초마다 "다 됐어?"라고 확인했어요.</li>
+      </ul>
+      <div class="kid">🧒 <b>비유:</b> 웹훅은 택배 기사님이 <b>"도착했어요" 문자를 보내 주는 것</b>, 폴링은 내가 <b>5분마다 현관문을 열어 보는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>타임아웃 (Timeout) <a class="cl" href="./#c7-4">7장 · 타임아웃 →</a></h3>
+      <p>폴링을 끝없이 하지 않도록 "몇 번까지만 묻고 그만"이라는 한도를 정해 두었어요.</p>
+      <div class="kid">🧒 <b>비유:</b> <b>"1시간 기다려도 안 오면 그만 기다리기"</b>예요.</div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" id="s7">
+    <div class="step-h"><span class="n">07</span><h2>안전하게 일하기<small>OAuth · 토큰 · 최소 권한 · 비밀 관리 · 사람 확인</small></h2></div>
+    <div class="c">
+      <h3>OAuth <a class="cl" href="./#c3-2">3장 · OAuth 2.0과 SSO →</a></h3>
+      <p>비밀번호를 넘기지 않고 "이 앱이 내 계정을 써도 돼요"라고 허락만 해 주는 방법이에요. GitHub 연결 때 AI는 일회용 코드만 알려 주고, <strong>승인 버튼은 사람이 직접</strong> 눌렀어요. 다른 서비스의 로그인과 비밀번호 입력도 모두 사람이 직접 했어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 친구에게 집 열쇠를 주는 대신 <b>"오늘 하루만 열리는 출입증"</b>을 주는 거예요.</div>
+    </div>
+    <div class="c">
+      <h3>토큰 <a class="cl" href="./#c3-1">3장 · 쿠키, 세션, 토큰 →</a></h3>
+      <p>허락을 받으면 생기는 디지털 출입증이에요. 컴퓨터에 저장되어 있어서 다음부터는 다시 로그인하지 않아도 돼요.</p>
+    </div>
+    <div class="c">
+      <h3>최소 권한 <a class="cl" href="./#c3-2">3장 · OAuth와 최소 권한 →</a></h3>
+      <p>꼭 필요한 만큼만 허락하는 원칙이에요. 배포 서비스에 준 열쇠는 <strong>"읽기만 가능"</strong>하게 만들었고, 필요 없어진 뒤에는 <strong>지웠어요.</strong></p>
+      <div class="kid">🧒 <b>비유:</b> 친구에게 <b>현관 열쇠만</b> 주고 금고 열쇠는 안 줘요. 놀러 오는 날이 끝나면 열쇠를 돌려받고요.</div>
+    </div>
+    <div class="c">
+      <h3>비밀 관리 · 민감한 정보 <a class="cl" href="./#c3-5">3장 · 민감한 정보 관리 →</a></h3>
+      <p>코드를 <strong>공개</strong>하기 전에 비밀번호나 키가 숨어 있는지 전부 검사했어요. 개인 이메일이 공개 기록에 남지 않도록 비공개용 주소로 바꾼 뒤에 올렸어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 일기장을 친구들에게 보여 주기 전에 <b>비밀 페이지를 먼저 빼는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>사람 확인 (가드레일) <a class="cl" href="./#c10-2">10장 · 질문에 답하는 과정 →</a></h3>
+      <p>10장에 "되돌리기 어려운 일은 사람에게 확인받기"라고 적혀 있어요. 실제 사이트에 처음 올리기 전, 공개·비공개를 정하기 전, 계정 삭제 같은 일 앞에서 <strong>먼저 물어봤어요.</strong></p>
+      <div class="kid">🧒 <b>비유:</b> 친구 이름으로 단톡방에 글을 올리기 전에 <b>"이렇게 올려도 돼?"라고 물어보는 것</b>이에요.</div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8">
+    <div class="step-h"><span class="n">08</span><h2>소식 전하기<small>하트비트 · 모니터링과 로그 · HTTP 상태 코드</small></h2></div>
+    <div class="c">
+      <h3>하트비트 (Heartbeat) <a class="cl" href="./#c7-5">7장 · 하트비트 →</a></h3>
+      <p>"나 아직 일하고 있어!"라는 신호예요. 오래 걸리는 작업 중에는 "지금 PDF를 그림으로 바꾸는 중이에요"처럼 중간 소식을 전했어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 병원 모니터의 <b>"삑, 삑" 심장 박동 소리</b>예요.</div>
+    </div>
+    <div class="c">
+      <h3>모니터링과 로그 <a class="cl" href="./#c8-8">8장 · 모니터링과 로그 →</a></h3>
+      <p>브라우저 오류 기록(콘솔)을 매번 확인했고, 배포 기록을 읽어서 "크레딧 초과"라는 진짜 원인을 찾았어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 비행기의 <b>블랙박스</b>예요. 무슨 일이 있었는지 나중에 알 수 있어요.</div>
+    </div>
+    <div class="c">
+      <h3>HTTP 상태 코드 <a class="cl" href="./#c1-4">1장 · HTTP 상태 코드 →</a></h3>
+      <div class="tbl"><table>
+        <tr><th>번호</th><th>뜻</th><th>이번에 본 곳</th></tr>
+        <tr><td><strong>200</strong></td><td>"잘 받았어요"</td><td>새 사이트 페이지들이 잘 열림</td></tr>
+        <tr><td><strong>404</strong></td><td>"그런 페이지 없어요"</td><td>배포가 안 됐을 때의 새 페이지, 일부러 숨긴 내부 폴더</td></tr>
+        <tr><td><strong>401</strong></td><td>"출입증 보여 주세요"</td><td>로그인 없이는 예전 배포본을 못 열었음</td></tr>
+      </table></div>
+      <div class="kid">🧒 <b>비유:</b> 편지를 보냈더니 우체국에서 <b>"배달 완료"(200)</b>, <b>"주소 없음"(404)</b> 도장을 찍어 돌려주는 거예요.</div>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="step" id="s9">
+    <div class="step-h"><span class="n">09</span><h2>한눈에 보는 연결표<small>부탁 → 한 일 → 쓰인 개념</small></h2></div>
+    <div class="tbl"><table>
+      <tr><th>사람의 부탁</th><th>AI가 한 일</th><th>쓰인 개념</th></tr>
+      <tr><td>노트 정리해 줘</td><td>파일 확인, 없으면 먼저 질문</td><td><a class="cl" href="./#c10-2">10장 · 입구 검사</a></td></tr>
+      <tr><td>(노트 18개 전달)</td><td>방법을 바꿔 PDF 읽기, 나눠 읽기</td><td><a class="cl" href="./#c7-1">7장 · 재시도</a><a class="cl" href="./#c2-3">2장 · 페이지네이션</a></td></tr>
+      <tr><td>팩트체크해 줘</td><td>원본 대조, 계산 다시 하기</td><td><a class="cl" href="./#c10-2">10장 · 출구 검사</a><a class="cl" href="./#c8-4">8장 · Eval</a></td></tr>
+      <tr><td>웹페이지에 올려 줘</td><td>페이지 제작, 미리보기로 확인</td><td><a class="cl" href="./#c1-1">1장 · 클라이언트·서버</a><a class="cl" href="./#c8-5">8장 · 테스트</a></td></tr>
+      <tr><td>검색되게 해 줘</td><td>찾아보기 목록 만들기</td><td><a class="cl" href="./#c4-4">4장 · 인덱스</a></td></tr>
+      <tr><td>버튼이 없는데?</td><td>덮어쓰기 원인 찾기, 복구</td><td><a class="cl" href="./#c7-7">7장 · 동시성</a><a class="cl" href="./#c7-6">7장 · 재해 복구</a><a class="cl" href="./#c7-2">7장 · 멱등성</a></td></tr>
+      <tr><td>Git·GitHub 설정해 줘</td><td>기록 남기기, 비밀 검사 후 공개</td><td><a class="cl" href="./#c8-1">8장 · Git</a><a class="cl" href="./#c3-5">3장 · 비밀 관리</a><a class="cl" href="./#c3-2">3장 · OAuth</a></td></tr>
+      <tr><td>자동 배포 연결해 줘</td><td>연결선과 읽기 전용 열쇠 설치</td><td><a class="cl" href="./#c2-4">2장 · 웹훅</a><a class="cl" href="./#c3-2">3장 · 최소 권한</a><a class="cl" href="./#c8-4">8장 · CI/CD</a></td></tr>
+      <tr><td>(크레딧 초과)</td><td>예전 호스팅 끊고 GitHub Pages로 이사</td><td><a class="cl" href="./#c7-3">7장 · 서킷 브레이커</a><a class="cl" href="./#c9-2">9장 · 트레이드오프</a></td></tr>
+      <tr><td>이해했어요 넣어 줘</td><td>브라우저 서랍에 진도 저장</td><td><a class="cl" href="./#c4-1">4장 · 데이터 저장</a></td></tr>
+      <tr><td>용어집 만들어 줘</td><td>데이터를 한 파일에 모아 두 곳에서 사용</td><td><a class="cl" href="./#c4-4">4장 · 인덱스</a><span class="cl o">한 곳에 모으기</span></td></tr>
+    </table></div>
+  </section>
+
+  <!-- 10 -->
+  <section class="step" id="s10">
+    <div class="step-h"><span class="n">10</span><h2>돌아보기: 더 잘할 수 있었던 점<small>좋은 에이전트는 아쉬운 점도 솔직하게 말해요</small></h2></div>
+    <div class="c">
+      <ul>
+        <li><strong>배포를 너무 자주 했어요.</strong> 하루에 10번 넘게 배포한 날도 있었어요(다른 작업의 배포도 섞여 있었어요). 무료 사용량을 바닥낸 원인 중 하나라서, 작은 수정은 <strong>모아서 한 번에</strong> 올렸어야 했어요. 🧒 과자 하나 살 때마다 택배를 시킨 셈이에요.</li>
+        <li><strong>확인을 너무 빨리 해서 착각한 적이 있어요.</strong> 페이지가 다 뜨기 전에 검사해서 "강조가 안 된다"고 잘못 본 적이 있었어요. 다시 확인하니 정상이었어요.</li>
+        <li><strong>사람이 로그인하는 중에 화면을 움직였을 수 있어요.</strong> 그 뒤로는 "알려 주시기 전까지 건드리지 않겠다"고 약속하고 지켰어요.</li>
+        <li><strong>덮어쓰기 사고를 미리 막지 못했어요.</strong> 처음부터 Git을 썼다면 없었을 사고예요. 그래서 지금은 "git pull 먼저" 규칙을 지켜요.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="finale" aria-label="마무리">
+    <div class="k">THE TAKEAWAY</div>
+    <p>부탁을 정확히 듣고(<strong>입구 검사</strong>), 도구로 직접 일하고(<strong>손발</strong>), 막히면 길을 바꾸고(<strong>재시도 · 서킷 브레이커</strong>), 결과를 다시 검사하고(<strong>출구 검사 · Eval</strong>), 중요한 일은 먼저 물어보는(<strong>사람 확인</strong>) 것. 이게 11장 "프롬프트 → 에이전트 → 답변"의 실제 모습이에요.</p>
+    <div class="flow" aria-label="전체 흐름">
+      <span>프롬프트</span><i>→</i><span>입구 검사</span><i>→</i><span>계획 (두뇌)</span><i>→</i><span>도구 사용 (손발)</span><i>→</i><span>실패 대응</span><i>→</i><span>출구 검사</span><i>→</i><span>사람 확인</span><i>→</i><span>답변</span>
+    </div>
+    <p style="font-size:15px;color:var(--soft)"><a class="cl" href="./#c11-1">11장 · 한눈에 보는 전체 흐름 →</a> <a class="cl" href="semiconductor.html">이 사례에서 만든 반도체소자 노트 →</a></p>
+  </section>
+</main>
+
+<p class="foot">AI WITH DANNY · FIELD CASE</p>
+</body>
+</html>
