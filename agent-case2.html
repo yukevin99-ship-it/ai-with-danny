@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>실전 사례 2 · AI with Danny</title>
+<meta name="description" content="경희대 국제캠퍼스 판매 카트의 실시간 위치 추적 사이트를 만들면서 AI 에이전트가 사람의 부탁(프롬프트)을 어떻게 수행했는지, AI with Danny 12개 장의 개념으로 12살 눈높이에 맞춰 풀어 쓴 두 번째 실전 사례">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#03060A;--panel:#07101A;--panel-2:#0A1622;--line:#123241;--line-hi:#1E5A6E;
+  --cyan:#6FE6FF;--cyan-mid:#2FB8D6;--cyan-dim:#0F4452;--text:#DCF7FF;--soft:#86AEBB;
+  --orange:#FF9D3F;--orange-dim:#3A1F08;
+  --glow:0 0 6px rgba(111,230,255,.55),0 0 18px rgba(111,230,255,.22);
+  --glow-o:0 0 6px rgba(255,157,63,.55),0 0 18px rgba(255,157,63,.2);
+  --display:"Orbitron","IBM Plex Sans KR",system-ui,sans-serif;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.75;padding-inline:16px;padding-block:0 72px;word-break:keep-all;overflow-wrap:anywhere}
+a{color:var(--cyan)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+
+.hero{position:relative;max-width:980px;margin:0 auto;padding-block:40px 110px;overflow:hidden;isolation:isolate}
+.hero::before{content:"";position:absolute;left:-50%;right:-50%;bottom:-40px;height:200px;z-index:-1;
+  background-image:linear-gradient(var(--cyan-dim) 1px,transparent 1px),linear-gradient(90deg,var(--cyan-dim) 1px,transparent 1px);
+  background-size:48px 48px;transform:perspective(320px) rotateX(62deg);transform-origin:bottom center;
+  mask-image:linear-gradient(to top,#000 20%,transparent 95%);-webkit-mask-image:linear-gradient(to top,#000 20%,transparent 95%);
+  animation:gridmove 6s linear infinite}
+@keyframes gridmove{from{background-position:0 0}to{background-position:0 48px}}
+.navrow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.homebtn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-hi);color:var(--cyan);font:500 13px var(--sans);padding:6px 14px;text-decoration:none}
+.homebtn:hover{border-color:var(--cyan);box-shadow:var(--glow)}
+.sys{font-family:var(--display);font-size:12px;letter-spacing:.28em;color:var(--orange);text-shadow:var(--glow-o)}
+h1{font-family:var(--sans);font-weight:700;font-size:clamp(30px,6vw,56px);line-height:1.2;margin:16px 0 12px}
+h1 b{color:var(--orange);text-shadow:var(--glow-o)}
+.kicker{font-size:clamp(17px,2.4vw,21px);font-weight:300;margin:0 0 14px}
+.kicker b{font-weight:600;color:var(--cyan)}
+.lede{max-width:66ch;color:var(--soft);margin:0}
+
+.formula{margin-top:24px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:15px}
+.formula .part{border:1px solid var(--line-hi);background:rgba(7,16,26,.75);padding:8px 14px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.formula .part.em{border-color:var(--cyan);color:var(--cyan)}
+.formula .op{font-family:var(--display);color:var(--soft)}
+
+.shell{max-width:980px;margin:-70px auto 0;position:relative}
+.toc{border:1px solid var(--line-hi);background:var(--panel);padding:16px 20px}
+.toc .k{font-family:var(--display);font-size:11px;letter-spacing:.26em;color:var(--cyan)}
+.toc ol{margin:8px 0 0;padding-left:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:4px 18px;counter-reset:t -1}
+.toc li{counter-increment:t}
+.toc a{display:grid;grid-template-columns:28px minmax(0,1fr);gap:6px;color:var(--text);text-decoration:none;padding:4px 0;font-size:15px}
+.toc a::before{content:counter(t,decimal-leading-zero);font:700 12px var(--display);color:var(--orange);padding-top:3px}
+.toc a:hover{color:var(--cyan)}
+
+section.step{margin-top:34px;scroll-margin-top:16px}
+.step-h{display:flex;gap:14px;align-items:baseline;border-bottom:1px solid var(--line-hi);padding-bottom:8px;margin-bottom:14px}
+.step-h .n{font:900 26px var(--display);color:var(--orange);text-shadow:var(--glow-o);line-height:1}
+.step-h h2{margin:0;font-size:clamp(20px,3vw,25px);font-weight:600;line-height:1.35}
+.step-h h2 small{display:block;font-size:14px;color:var(--soft);font-weight:400}
+.step > p{max-width:72ch;color:var(--soft);margin:0 0 12px}
+.ask{border:1px dashed var(--line-hi);background:var(--panel-2);padding:10px 14px;margin:0 0 12px;font-size:15px;max-width:74ch}
+.ask b{font-family:var(--display);font-size:11px;letter-spacing:.2em;color:var(--orange);display:block;margin-bottom:2px}
+
+.c{border:1px solid var(--line);background:var(--panel);padding:16px 18px;margin-top:10px}
+.c h3{margin:0 0 6px;font-size:17px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.cl{display:inline-flex;align-items:center;gap:6px;font:600 12px var(--sans);color:var(--cyan);border:1px solid var(--cyan-mid);background:rgba(111,230,255,.06);padding:2px 10px;text-decoration:none;white-space:nowrap}
+.cl:hover{border-color:var(--cyan);box-shadow:var(--glow)}
+.cl.o{color:var(--orange);border-color:rgba(255,157,63,.6);background:rgba(255,157,63,.06)}
+.c p,.c ul{margin:6px 0;max-width:74ch}
+.c ul{padding-left:20px}
+.c li{margin:3px 0}
+.c li::marker{color:var(--cyan-mid)}
+.kid{margin-top:10px;border-left:2px solid var(--orange);background:rgba(255,157,63,.07);padding:8px 12px;font-size:15px}
+.kid b{color:var(--orange)}
+strong{font-weight:600;color:var(--text)}
+mark{background:none;color:var(--cyan);border-bottom:1px solid var(--cyan-mid);padding:0 1px}
+code{font-family:var(--mono);font-size:.86em;color:var(--cyan);background:rgba(111,230,255,.08);padding:1px 5px}
+
+.tbl{overflow-x:auto;margin:10px 0;max-width:100%}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:15px;border:1px solid var(--line)}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--cyan);font-weight:600;letter-spacing:.06em;background:var(--panel-2)}
+tr:last-child td{border-bottom:0}
+td .cl{margin:2px 4px 2px 0}
+
+.arch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0;font-size:14px}
+.arch div{border:1px solid var(--line-hi);background:var(--panel-2);padding:10px 12px}
+.arch b{display:block;color:var(--cyan);font-size:15px;margin-bottom:2px}
+@media (max-width:640px){.arch{grid-template-columns:minmax(0,1fr)}}
+
+.finale{margin-top:34px;border:1px solid var(--cyan);padding:20px 22px;box-shadow:inset 0 0 30px rgba(111,230,255,.07)}
+.finale .k{font-family:var(--display);font-size:11px;letter-spacing:.26em;color:var(--cyan)}
+.finale p{margin:8px 0 0;font-size:17px;max-width:70ch}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;font-size:14px}
+.flow span{border:1px solid var(--line-hi);padding:5px 11px;background:var(--panel)}
+.flow i{font-style:normal;color:var(--cyan-mid)}
+.foot{max-width:980px;margin:48px auto 0;font-family:var(--display);font-size:10px;letter-spacing:.3em;color:var(--cyan-dim);text-align:center}
+@media (max-width:520px){.c{padding:14px}.step-h .n{font-size:22px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="navrow">
+    <a class="homebtn" href="./">← AI with Danny 홈</a>
+    <a class="homebtn" href="agent-case.html">실전 사례 1 보기</a>
+  </div>
+  <div class="sys">// FIELD CASE 02 · WHERE IS MY CART?</div>
+  <h1>실전 사례 2: <b>판매 카트</b> 위치 추적 사이트 만들기</h1>
+  <p class="kicker">부탁 한 줄에서 시작해 실제로 캠퍼스를 달리는 카트까지, <b>12개 장의 개념이 사흘 동안 어떻게 쓰였는지</b></p>
+  <p class="lede">사람이 AI 에이전트(Claude)에게 "카트가 돌아다니는 경로를 홈페이지에서 볼 수 있게 해 줘"라고 부탁했어요. 에이전트가 이 부탁과 뒤이은 부탁들을 어떻게 알아듣고, 만들고, 검사받고, 고쳤는지를 이 사이트 12개 장의 개념어로 12살 눈높이에 맞춰 풀어 썼어요. 개념 옆 <span class="cl" style="pointer-events:none">7장 · 타임아웃 →</span> 버튼을 누르면 그 장의 설명으로 바로 가요.</p>
+  <div class="formula" aria-label="이번 작업의 공식">
+    <span class="part em">카트의 폰 (GPS)</span><span class="op">+</span>
+    <span class="part">실시간 저장소 (Firebase)</span><span class="op">+</span>
+    <span class="part">홈페이지 지도</span><span class="op">=</span>
+    <span class="part em">Where is my cart?</span>
+  </div>
+</header>
+
+<main class="shell">
+  <nav class="toc" aria-label="목차">
+    <div class="k">CONTENTS</div>
+    <ol>
+      <li><a href="#s0">한 줄 요약: 이번엔 어떤 일꾼이었을까?</a></li>
+      <li><a href="#s1">부탁 알아듣기: 프롬프트, 입구 검사, 주목</a></li>
+      <li><a href="#s2">설계도 그리기: 서버, API, 데이터베이스</a></li>
+      <li><a href="#s3">실시간으로 보여 주기: 웹훅, 하트비트, 인덱스</a></li>
+      <li><a href="#s4">다른 AI에게 검사받기: 출구 검사와 Eval</a></li>
+      <li><a href="#s5">열쇠와 자물쇠: 토큰, 최소 권한, 사람 확인</a></li>
+      <li><a href="#s6">실패에 강하게: 재시도, 타임아웃, 멱등성, 동시성</a></li>
+      <li><a href="#s7">돈과 정확도 사이: 트레이드오프</a></li>
+      <li><a href="#s8">데이터로 결정하기: 이벤트, 캐시, 추천</a></li>
+      <li><a href="#s9">내보내고 확인하기: 배포, 테스트, 로그</a></li>
+      <li><a href="#s10">한눈에 보는 연결표</a></li>
+      <li><a href="#s11">돌아보기: 더 잘할 수 있었던 점</a></li>
+    </ol>
+  </nav>
+
+  <!-- 0 -->
+  <section class="step" id="s0">
+    <div class="step-h"><span class="n">00</span><h2>한 줄 요약: 이번엔 어떤 일꾼이었을까?<small>설명서를 쓰고, 직접 만들고, 검사받고, 사람과 같이 현장에서 고쳤어요</small></h2></div>
+    <div class="c">
+      <h3>AI 에이전트 <a class="cl" href="./#c11-1">11장 · 전체 흐름 →</a></h3>
+      <p>사흘(2026년 9월 26~28일) 동안 받은 부탁은 30개가 넘어요. 처음엔 "어떻게 하면 돼?"였는데, 끝날 때는 이런 것들이 실제로 돌아가고 있었어요.</p>
+      <ul>
+        <li><strong>방문자 화면</strong>: 실시간 카트 지도, 지나온 경로, 판매 히트맵, 안내 챗봇, 남은 가챠 수량, 공지 배너, "여기로 와 주세요" 요청과 진행 안내</li>
+        <li><strong>운전자 화면</strong>: 위치 보내기, 가챠 판매 기록, 지금 갈 곳 추천, 요청이 몰린 곳, 가는 중 / 도착 / 못 가요 버튼</li>
+        <li><strong>설명서</strong>: 처음부터 끝까지 따라 할 수 있는 가이드 문서</li>
+      </ul>
+      <div class="kid">🧒 <b>비유:</b> 실전 사례 1이 "숙제를 대신 정리해 준 친구"였다면, 이번에는 <b>같이 모둠 과제를 한 친구</b>예요. 친구(사람)는 운동장(캠퍼스)에 나가 직접 뛰어 보고, AI는 교실에서 설계도를 그리고 고쳤어요. 서로 결과를 주고받으면서 완성했어요.</div>
+    </div>
+  </section>
+
+  <!-- 1 -->
+  <section class="step" id="s1">
+    <div class="step-h"><span class="n">01</span><h2>부탁 알아듣기<small>프롬프트 · 입구 검사 · 트랜스포머의 주목</small></h2></div>
+    <div class="ask"><b>FIRST PROMPT</b>"카트로 캠퍼스를 돌아다니며 상품을 팔 거야. 내가 돌아다니는 경로를 사람들이 내 홈페이지에서 볼 수 있게 하고 싶어. 어떻게 하면 될지 알려 주고 파일로 저장해 줘!"</div>
+    <div class="c">
+      <h3>프롬프트 <a class="cl" href="./#c11-1">11장 · 프롬프트 → 에이전트 → 답변 →</a></h3>
+      <p>첫 부탁은 "방법을 알려 줘"였어요. 그래서 바로 코드를 고치지 않고 <strong>설명서(가이드 문서)</strong>부터 썼어요. 그다음 "실제로 합쳐 줘", "검수해 줘", "기능 추가해 줘"처럼 부탁이 하나씩 이어졌고, 그때마다 할 일의 크기를 부탁에 맞췄어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 친구가 "라면 어떻게 끓여?"라고 물으면 <b>요리법을 알려 주고</b>, "끓여 줘"라고 하면 그때 <b>직접 끓여 주는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>입구 검사 (가드레일) <a class="cl" href="./#c10-2">10장 · 질문에 답하는 과정 →</a></h3>
+      <p>답하기 전에 홈페이지를 <strong>직접 열어 봤어요.</strong> 부탁에 적힌 주소의 10장 자리에는 이미 "ChatGPT는 어떻게 작동할까" 설명이 있었어요. 그 내용을 덮어쓰지 않고, 카트 지도를 <strong>새 칸</strong>으로 만들자고 제안했어요.</p>
+      <p>정말 사람이 정해야 하는 것만 물었어요. 예를 들면 "Firebase 프로젝트를 둘 중 어느 것으로 쓸까요?", "AI 답변은 돈이 드는데 쓸까요?" 같은 질문이에요.</p>
+      <div class="kid">🧒 <b>비유:</b> 게시판에 그림을 붙이기 전에 <b>그 자리에 누가 먼저 붙인 그림이 있는지 확인하는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>트랜스포머의 주목 (Attention) <a class="cl" href="./#c10-3">10장 · 생성형 AI 지도 →</a></h3>
+      <p>긴 부탁에서 중요한 단어에 주목했어요. "경희대 국제캠퍼스", "자체 제작 카트", "경로", "사람들이 볼 수 있게". 그래서 지도 첫 화면을 캠퍼스에 맞추고, 지나온 길을 선으로 그리고, <strong>누구나 로그인 없이</strong> 볼 수 있게 설계했어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 숙제 안내문에서 <b>형광펜으로 칠한 단어만 다시 읽는 것</b>이에요.</div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2">
+    <div class="step-h"><span class="n">02</span><h2>설계도 그리기<small>클라이언트·서버 · HTTPS · API와 SDK · 데이터베이스 종류</small></h2></div>
+    <div class="arch" aria-label="전체 구조">
+      <div><b>① 카트의 폰</b>운전자 페이지가 GPS로 위치를 재서 3초마다 보내요</div>
+      <div><b>② Firebase (저장소)</b>위치, 경로, 판매, 요청을 실시간으로 보관해요</div>
+      <div><b>③ 홈페이지 지도</b>방문자 화면에 카트와 경로를 그려요</div>
+    </div>
+    <div class="c">
+      <h3>클라이언트와 서버 <a class="cl" href="./#c1-1">1장 · 클라이언트와 서버 →</a></h3>
+      <p>원래 홈페이지는 <strong>파일만 내주는 서버</strong>라서, 카트 위치처럼 계속 바뀌는 값을 들고 있을 곳이 없었어요. 그래서 위치를 받아 두는 <strong>실시간 저장소(Firebase)</strong>를 가운데에 두었어요. 카트의 폰과 방문자의 브라우저는 둘 다 손님(클라이언트)이에요.</p>
+      <div class="kid">🧒 <b>비유:</b> 카트(보내는 손님)와 방문자(보는 손님)가 직접 만나지 않고 <b>교실 게시판(저장소)</b>을 통해 소식을 주고받는 거예요.</div>
+    </div>
+    <div class="c">
+      <h3>HTTPS <a class="cl" href="./#c1-6">1장 · HTTPS →</a></h3>
+      <p>폰의 위치 기능은 <strong>자물쇠가 걸린 주소(https)</strong>에서만 쓸 수 있어요. 사이트가 처음부터 https로 열려서 바로 쓸 수 있었고, 설명서에도 "https 주소에서 열어야 해요"라고 적어 두었어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 내 위치 같은 비밀 편지는 <b>봉투를 붙여야만</b> 보낼 수 있다는 규칙이에요.</div>
+    </div>
+    <div class="c">
+      <h3>API와 SDK <a class="cl" href="./#c2-1">2장 · API와 SDK →</a></h3>
+      <p>지도는 <code>Leaflet</code>, 저장소는 <code>Firebase</code> 도구 상자(SDK)를 빌려 썼어요. 처음부터 다 만들지 않고, <strong>검증된 도구를 조립</strong>했어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 레고로 집을 지을 때 <b>바퀴나 창문 블록은 이미 만들어진 걸 쓰는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>데이터베이스 종류 <a class="cl" href="./#c4-1">4장 · 데이터베이스 종류 →</a></h3>
+      <p>Firebase Realtime Database는 표가 아니라 <strong>나뭇가지 모양(JSON)</strong>으로 저장해요. 이렇게 서랍을 나눴어요.</p>
+      <div class="tbl"><table>
+        <tr><th>서랍 이름</th><th>들어 있는 것</th><th>누가 쓰나</th></tr>
+        <tr><td><code>cart/live</code></td><td>지금 카트 위치 1개</td><td>운전자만</td></tr>
+        <tr><td><code>cart/trail</code></td><td>오늘 지나온 점들</td><td>운전자만</td></tr>
+        <tr><td><code>sales</code></td><td>가챠 판매 기록</td><td>운전자만</td></tr>
+        <tr><td><code>cart/stock</code>, <code>cart/notice</code></td><td>남은 수량, 공지 한 줄</td><td>운전자만</td></tr>
+        <tr><td><code>requests</code></td><td>"여기로 와 주세요" 요청</td><td>방문자 (5분에 1번)</td></tr>
+      </table></div>
+      <div class="kid">🧒 <b>비유:</b> 책상 서랍마다 <b>이름표</b>를 붙이고, 서랍마다 <b>열 수 있는 사람</b>을 정해 둔 거예요.</div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3">
+    <div class="step-h"><span class="n">03</span><h2>실시간으로 보여 주기<small>웹훅과 폴링 · 하트비트 · 인덱스</small></h2></div>
+    <div class="c">
+      <h3>웹훅과 폴링 <a class="cl" href="./#c2-4">2장 · Polling과 Webhook →</a></h3>
+      <p>방문자 화면이 3초마다 "카트 어디야?"라고 묻는 방식(폴링)은 쓰지 않았어요. 대신 저장소가 <strong>바뀔 때마다 먼저 알려 주는</strong> 실시간 구독을 썼어요. 웹훅과 같은 생각이에요. 그래서 카트가 움직이면 지도의 주황 점이 바로 따라와요.</p>
+      <div class="kid">🧒 <b>비유:</b> 택배가 왔는지 <b>5분마다 현관문을 여는 것(폴링)</b> 대신, 택배 기사님이 <b>"도착했어요" 문자를 보내 주는 것(웹훅)</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>하트비트 (Heartbeat) <a class="cl" href="./#c7-5">7장 · 하트비트 →</a></h3>
+      <p>카트 폰은 몇 초마다 위치를 보내요. 이게 "나 살아 있어!" 신호예요. <strong>2분 넘게 소식이 없으면</strong> 지도에 "신호를 확인하는 중이에요"라고 띄우고 점을 흐리게 했어요. 폰 화면이 꺼지면 위치 전송이 멈춘다는 것도 운전자 화면에 크게 적어 두었어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 숨바꼭질할 때 술래가 <b>"아직 거기 있지?"라고 부르면 대답하는 소리</b>예요. 대답이 끊기면 걱정하기 시작해요.</div>
+    </div>
+    <div class="c">
+      <h3>인덱스 (Index) <a class="cl" href="./#c4-4">4장 · 인덱스 →</a></h3>
+      <p>경로, 판매, 요청 기록에 <strong>시각(<code>ts</code>) 찾아보기</strong>를 걸었어요. 그래서 "최근 1,000개 점만", "최근 30분 요청만"을 빨리 꺼낼 수 있어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 일기장에 <b>날짜 색인 스티커</b>를 붙여서 "어제 쓴 일기"를 바로 펼치는 거예요.</div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4">
+    <div class="step-h"><span class="n">04</span><h2>다른 AI에게 검사받기<small>출구 검사 · Eval · 재시도</small></h2></div>
+    <div class="ask"><b>PROMPT</b>"howtomakeit_prg.md 파일 Codex에 검수시켜 줄 수 있어?" → "Codex는 gpt-5.6-sol 모델, effort high로 돌려!"</div>
+    <div class="c">
+      <h3>출구 검사 <a class="cl" href="./#c10-2">10장 · 질문에 답하는 과정 →</a></h3>
+      <p>내가 쓴 설명서와 코드를 <strong>다른 회사의 AI(Codex)</strong>에게 검사받았어요. 중요한 건 검사 결과를 그대로 믿지 않고 <strong>코드와 다시 대조했다</strong>는 거예요.</p>
+      <div class="tbl"><table>
+        <tr><th>Codex의 지적</th><th>대조 결과</th><th>한 일</th></tr>
+        <tr><td>보안 규칙이 값의 모양을 검사하지 않음</td><td>✅ 맞음</td><td>좌표 범위, 상태 값 검사 추가</td></tr>
+        <tr><td>지난 경로가 지도에서 안 지워짐</td><td>✅ 맞음</td><td>같은 묶음의 추가·삭제를 함께 처리</td></tr>
+        <tr><td>기기 시계가 틀리면 "신호 확인 중"이 잘못 뜸</td><td>✅ 맞음</td><td>서버 시계와의 차이를 보정</td></tr>
+        <tr><td>설정 전에는 "로딩 중"만 계속 뜸</td><td>❌ 틀림</td><td>실제 화면에서 "준비 중"이 뜨는 걸 보여 주고 고치지 않음</td></tr>
+        <tr><td>한 번에 덮어쓰면 검사를 건너뜀</td><td>❌ 틀림</td><td>삭제할 때만 건너뛴다는 점만 반영</td></tr>
+      </table></div>
+      <div class="kid">🧒 <b>비유:</b> 짝꿍에게 받아쓰기를 채점받았는데, 짝꿍이 맞은 걸 틀렸다고 할 때도 있어요. 그래서 <b>교과서를 펴서 한 번 더 확인</b>하고 고칠 것만 고쳤어요.</div>
+    </div>
+    <div class="c">
+      <h3>재시도 전략 (Retry) <a class="cl" href="./#c7-1">7장 · 재시도 전략 →</a></h3>
+      <p>부탁받은 <code>gpt-5.6-sol</code> 모델은 Codex 계정에서 지원하지 않아 거절됐어요. 그래서 <strong>기본 모델 + 높은 노력(effort high)</strong>으로 바꿔 다시 돌렸고, 이 사실을 숨기지 않고 먼저 알렸어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 사려던 색연필이 품절이면 <b>비슷한 색을 사 오되, "그 색은 없어서 이걸로 샀어"라고 말해 주는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>Eval과 자동 시험 <a class="cl" href="./#c8-4">8장 · CI/CD와 Eval →</a></h3>
+      <p>챗봇이 질문을 잘 알아듣는지 시험 문제를 만들어 돌렸어요. 그러다 <strong>"어디서 제일 많이 팔려?"</strong>에 위치를 답하는 실수를 찾았어요. "어디"라는 단어를 먼저 봐서 생긴 일이라, 인기 질문을 먼저 보도록 순서를 바꿨어요. <strong>"카트 부를 수 있어?"</strong>도 같은 방식으로 찾아 고쳤어요.</p>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5">
+    <div class="step-h"><span class="n">05</span><h2>열쇠와 자물쇠<small>토큰 · 최소 권한 · 민감한 정보 · 프롬프트 인젝션 · 사람 확인</small></h2></div>
+    <div class="c">
+      <h3>토큰 <a class="cl" href="./#c3-1">3장 · 쿠키, 세션, 토큰 →</a></h3>
+      <p>운전자는 이메일로 로그인해서 <strong>출입증(토큰)</strong>을 받아요. 방문자가 "여기로 와 주세요"를 누를 때는 이름도 비밀번호도 없는 <strong>익명 출입증</strong>이 몰래 만들어져요. 그래서 요청마다 "누가 보냈는지"는 몰라도 "같은 사람인지"는 알 수 있어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 놀이공원 <b>손목 팔찌</b>예요. 이름은 안 적혀 있지만, 같은 팔찌로 5분 안에 또 줄 서면 알 수 있어요.</div>
+    </div>
+    <div class="c">
+      <h3>최소 권한 <a class="cl" href="./#c3-2">3장 · OAuth와 최소 권한 →</a></h3>
+      <p>보안 규칙으로 서랍마다 열쇠를 나눴어요. <strong>읽기는 누구나</strong>, 위치·판매·수량·공지 <strong>쓰기는 운전자만</strong>, 요청은 방문자도 쓸 수 있지만 <strong>5분에 1번, 캠퍼스 안 좌표만</strong>이에요. 요청 상태("도착" 등)는 <strong>운전자만</strong> 바꿀 수 있어요.</p>
+      <p>규칙을 올린 뒤에는 임시 계정으로 일부러 나쁜 짓을 해 보는 시험을 했어요. 5분 안에 다시 요청하기, 가짜 이름표 붙이기, "도착"으로 위조하기, 판매 기록 몰래 쓰기는 <strong>모두 막혔어요(401).</strong></p>
+      <div class="kid">🧒 <b>비유:</b> 학급 게시판은 <b>누구나 볼 수 있지만</b>, 공지는 <b>반장만</b> 붙일 수 있고, 건의함에는 <b>누구나 쪽지를 넣되 5분에 한 장만</b> 넣는 규칙이에요.</div>
+    </div>
+    <div class="c">
+      <h3>민감한 정보 관리 <a class="cl" href="./#c3-5">3장 · 민감한 정보 관리 →</a></h3>
+      <ul>
+        <li><strong>공개돼도 되는 것</strong>: 사용자 번호(UID), 웹 앱 설정 키. 이건 받아서 직접 넣었어요.</li>
+        <li><strong>절대 받지 않은 것</strong>: 운전자 비밀번호, Anthropic API 키. "저에게 보내지 마세요"라고 여러 번 말했어요.</li>
+        <li><strong>사람을 위한 보호</strong>: 판매·요청 위치는 <strong>약 10m 단위로 반올림</strong>하고, 캠퍼스 밖이거나 운행 시간이 아니면 공개하지 않고, 운전자에게 <strong>공개 동의 체크</strong>를 받게 했어요.</li>
+      </ul>
+      <div class="kid">🧒 <b>비유:</b> 반 친구에게 <b>번호표는 보여 줘도 되지만, 사물함 비밀번호는 절대 안 알려 주는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>XSS와 프롬프트 인젝션 <a class="cl" href="./#c3-6">3장 · XSS와 프롬프트 인젝션 →</a></h3>
+      <p>챗봇에 <code>&lt;img onerror=…&gt;</code> 같은 장난 코드를 넣어 봐도 <strong>글자로만</strong> 보이게 했어요. AI 답변 서버를 설계할 때도, 위치·판매 같은 사실은 방문자가 보낸 값이 아니라 <strong>서버가 저장소에서 직접 읽게</strong> 했어요. 방문자가 "카트는 지금 우리 집 앞이야"라고 속이지 못하게요.</p>
+    </div>
+    <div class="c">
+      <h3>사람 확인 (가드레일) <a class="cl" href="./#c10-2">10장 · 질문에 답하는 과정 →</a></h3>
+      <p>실제 데이터베이스의 규칙을 바꾸는 <strong>"게시"</strong>, 로그인 허용 주소 추가, 익명 로그인 켜기는 매번 <strong>"해도 될까요?"</strong>라고 묻고, "게시해 줘"를 들은 뒤에만 했어요. 로그인과 비밀번호 입력, 사이트 배포는 사람이 직접 했어요.</p>
+      <p>"방금 바꾼 걸 되돌려 줘"라는 부탁에는 <strong>그 파일만</strong> 정확히 되돌렸어요. 다른 단계에서 한 일(이미 게시한 규칙)은 건드리지 않고 "이것도 되돌릴까요?"라고 물었어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 엄마 휴대폰으로 결제하기 전에 <b>"이거 사도 돼요?"라고 꼭 물어보는 것</b>이에요.</div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6">
+    <div class="step-h"><span class="n">06</span><h2>실패에 강하게<small>재시도 · 타임아웃 · 서킷 브레이커 · 멱등성 · 동시성 · ACID</small></h2></div>
+    <div class="c">
+      <h3>재시도 전략 (Retry) <a class="cl" href="./#c7-1">7장 · 재시도 전략 →</a></h3>
+      <p>"요청 위치 오차를 줄여 줘"라는 부탁에, 위치를 <strong>한 번만 재지 않고 최대 8초 동안 여러 번</strong> 재서 가장 정확한 값을 고르게 했어요. 정확도가 60m → 25m → 12m로 좋아지면 15m 이하에서 멈춰요.</p>
+      <div class="kid">🧒 <b>비유:</b> 키를 잴 때 <b>세 번 재서 가장 반듯하게 선 기록</b>을 쓰는 거예요.</div>
+    </div>
+    <div class="c">
+      <h3>타임아웃 (Timeout) <a class="cl" href="./#c7-4">7장 · 타임아웃 →</a></h3>
+      <ul>
+        <li>위치 재기는 <strong>8초까지만</strong>. 그래도 안 되면 "지도에서 직접 찍어 주세요"로 넘어가요.</li>
+        <li>요청은 <strong>30분 동안만</strong> 유효해요. 운전자가 아무것도 누르지 않으면 고객 화면에 <strong>"시간 안에 가지 못했어요. 미안해요"</strong>가 자동으로 떠요.</li>
+      </ul>
+      <div class="kid">🧒 <b>비유:</b> 약속 장소에서 <b>30분 기다려도 친구가 안 오면 "오늘은 못 오나 봐" 하고 문자를 남기는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>서킷 브레이커 (Circuit Breaker) <a class="cl" href="./#c7-3">7장 · 서킷 브레이커 →</a></h3>
+      <p>AI 챗봇을 만들 때, AI 서버가 없거나 고장 나면(404, 503) <strong>더는 부르지 않고</strong> 규칙으로 답하는 "기본 안내"로 자동 전환하게 설계했어요. 그래서 나중에 AI를 빼도 챗봇이 멈추지 않았어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 급식실이 문을 닫았으면 줄 서서 계속 기다리지 않고 <b>준비해 둔 도시락을 꺼내 먹는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>멱등성 (Idempotency) <a class="cl" href="./#c7-2">7장 · 멱등성 →</a></h3>
+      <p>운전자가 "가는 중" 버튼을 실수로 세 번 눌러도 요청 상태는 그냥 "가는 중" 하나예요. 몇 번을 눌러도 결과가 같게 <strong>"더하기"가 아니라 "이 값으로 정하기"</strong>로 저장했어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 전등 스위치를 <b>"켜짐"으로 여러 번 눌러도 계속 켜져 있는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>락과 동시성 <a class="cl" href="./#c7-7">7장 · 락과 동시성 →</a></h3>
+      <p>가챠를 팔 때마다 남은 수량이 1씩 줄어요. 아주 짧은 순간에 두 번 팔리면 둘 다 "30개 → 29개"로 계산해서 하나가 사라질 수 있어요. 그래서 <strong>"지금 몇 개인지 확인하고 빼기"를 한 덩어리(트랜잭션)</strong>로 처리했어요.</p>
+      <p>사람이 직접 고친 파일(디자인을 바꾼 홈페이지, 직접 고친 설명서)은 <strong>덮어쓰지 않고</strong> 필요한 부분만 고치거나 끝에 이어 붙였어요. 실전 사례 1의 덮어쓰기 사고에서 배운 점이에요.</p>
+      <div class="kid">🧒 <b>비유:</b> 사탕 통에서 두 친구가 동시에 손을 넣으면 개수 세기가 꼬여요. 그래서 <b>한 번에 한 명만 뚜껑을 열기</b>로 한 거예요.</div>
+    </div>
+    <div class="c">
+      <h3>ACID: 다 되거나, 하나도 안 되거나 <a class="cl" href="./#c4-3">4장 · ACID →</a></h3>
+      <p>"여기로 와 주세요" 요청은 <strong>요청 내용</strong>과 <strong>"이 사람이 마지막으로 요청한 시각"</strong>을 꼭 <strong>한 번에 같이</strong> 저장해요. 하나만 저장되면 5분 제한을 피해 갈 수 있으니까요. 둘 다 되거나, 둘 다 안 되게 했어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 도서관에서 책을 빌릴 때 <b>"책 가져가기"와 "대출 기록 쓰기"는 꼭 같이</b> 해야 해요. 하나만 하면 책이 사라진 걸로 보여요.</div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" id="s7">
+    <div class="step-h"><span class="n">07</span><h2>돈과 정확도 사이<small>모든 것은 트레이드오프</small></h2></div>
+    <div class="ask"><b>PROMPT</b>"관리자가 돈을 지불해야 쓸 수 있는 거야? 나는 돈까지 지불하고 싶지는 않아" → "Claude AI 답변 기능은 그럼 빼 줘!"</div>
+    <div class="c">
+      <h3>트레이드오프 <a class="cl" href="./#c9-2">9장 · 모든 것은 트레이드오프 →</a></h3>
+      <div class="tbl"><table>
+        <tr><th>고민</th><th>고른 것</th><th>얻은 것</th><th>잃은 것</th></tr>
+        <tr><td>챗봇: AI 답변 vs 규칙 답변</td><td><strong>규칙 답변</strong> (사람이 선택)</td><td>운영비 0원</td><td>정해진 질문만 답할 수 있음</td></tr>
+        <tr><td>요청 위치: 1m 단위 vs 10m 단위</td><td><strong>10m 단위</strong></td><td>고객의 정확한 자리를 공개하지 않음</td><td>최대 약 5m 오차</td></tr>
+        <tr><td>캠퍼스 범위: 좁게 vs 넓게</td><td><strong>넓게 유지</strong></td><td>테스트 안 한 곳에서도 전송됨</td><td>캠퍼스 가장자리 밖 일부도 허용</td></tr>
+        <tr><td>요청 알림: 폰 푸시 vs 사이트 안 안내</td><td><strong>사이트 안 안내</strong></td><td>무료, 오늘 운행 전에 완성</td><td>사이트를 열어야만 보임</td></tr>
+      </table></div>
+      <p>AI를 뺄 때도 코드에 <strong>"안내 규칙" 자리를 남겨 두어서</strong>, 나중에 돈을 들일 수 있으면 그 칸만 AI로 바꾸면 되게 했어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 용돈으로 <b>비싼 게임기를 살지, 그 돈으로 친구들과 떡볶이를 먹을지</b> 고르는 것과 같아요. 정답은 없고, 무엇을 얻고 무엇을 포기하는지 알고 고르는 게 중요해요.</div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8">
+    <div class="step-h"><span class="n">08</span><h2>데이터로 결정하기<small>이벤트 소싱 · 캐시 · 추천</small></h2></div>
+    <div class="c">
+      <h3>이벤트 소싱 <a class="cl" href="./#c6-3">6장 · 이벤트 소싱과 CDC →</a></h3>
+      <p>가챠를 하나 팔 때마다 "언제, 어디서, 몇 개"를 <strong>지우지 않고 한 줄씩 쌓았어요.</strong> 판매 히트맵, 인기 장소 Top 3, "지금 갈 곳 추천"은 모두 이 기록을 그때그때 다시 세어서 만들어요.</p>
+      <ul>
+        <li><strong>지금 갈 곳 추천</strong>: 지금 시각 앞뒤 1시간에 많이 팔린 장소 (기록이 적으면 전체 기록 기준)</li>
+        <li><strong>요청이 몰린 곳</strong>: 최근 30분 "여기로 와 주세요"가 많은 장소</li>
+        <li>둘을 나란히 보여 줘서 <strong>실적(판매)과 수요(요청)를 비교</strong>해 동선을 정해요.</li>
+      </ul>
+      <div class="kid">🧒 <b>비유:</b> 용돈 기입장에 <b>쓴 돈을 한 줄씩 적어 두면</b>, 나중에 "이번 달 간식비가 얼마지?"를 언제든 다시 계산할 수 있어요.</div>
+    </div>
+    <div class="c">
+      <h3>캐시 (Cache) <a class="cl" href="./#c5-1">5장 · 캐시 →</a></h3>
+      <ul>
+        <li><strong>위치 캐시</strong>: 폰은 1분 전에 잰 위치를 기억해 두었다가 다시 주기도 해요. 걸어가는 중이면 수십 m 틀려요. 그래서 요청 위치는 <strong>"기억한 값 말고 지금 새로 재 줘"</strong>로 바꿨어요.</li>
+        <li><strong>브라우저 캐시</strong>: 고친 파일을 올렸는데 예전 화면이 보일 때가 있었어요. 브라우저가 예전 사본을 기억하고 있었던 거예요. "새로고침해 주세요"라고 안내하고, 확인할 때는 주소 끝에 <code>?nc=1</code>을 붙여 새 사본을 받았어요.</li>
+      </ul>
+      <div class="kid">🧒 <b>비유:</b> 아침에 본 일기예보를 기억하고 있다가 <b>오후 날씨를 묻는 친구에게 그대로 말하면</b> 틀릴 수 있어요. 지금 창밖을 다시 봐야 해요.</div>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="step" id="s9">
+    <div class="step-h"><span class="n">09</span><h2>내보내고 확인하기<small>CI/CD · 테스트 종류 · HTTP 상태 코드 · 모니터링과 로그</small></h2></div>
+    <div class="c">
+      <h3>CI/CD (배포) <a class="cl" href="./#c8-4">8장 · CI/CD →</a></h3>
+      <p>이때 사이트는 Netlify에 <strong>폴더를 끌어다 놓는 방식</strong>(수동 배포)이었어요. 사람이 올리면 AI가 실제 사이트를 열어 "새 코드가 들어갔는지"를 하나씩 확인했어요. 이 경험 덕분에 나중에는 push 한 번이면 반영되는 GitHub Pages(자동 배포)로 옮겼어요.</p>
+      <div class="kid">🧒 <b>비유:</b> 지금까지는 <b>숙제를 직접 들고 가서 선생님께 낸 것</b>이고, 자동 배포는 <b>우체통에 넣으면 알아서 배달되는 것</b>이에요.</div>
+    </div>
+    <div class="c">
+      <h3>테스트 종류 <a class="cl" href="./#c8-5">8장 · 테스트 종류 →</a></h3>
+      <div class="tbl"><table>
+        <tr><th>종류</th><th>이번에 한 것</th></tr>
+        <tr><td>단위 테스트</td><td>거리 계산, 판매 집계, 추천, 챗봇 답변을 가짜 데이터로 따로따로 시험</td></tr>
+        <tr><td>통합 테스트</td><td>실제 Firebase에 임시 계정으로 요청을 보내 규칙이 막고 허락하는지 확인한 뒤, 시험 데이터는 바로 삭제</td></tr>
+        <tr><td>화면 테스트</td><td><code>?demo</code> 모드에서 가짜 GPS(60m → 25m → 12m)로 버튼을 눌러 보기, 휴대폰 폭에서 화면이 밀리지 않는지 보기</td></tr>
+        <tr><td>현장 테스트</td><td><strong>사람이</strong> 카트를 끌고 캠퍼스 8곳을 돌며 좌표를 보내 줌 → 지도 첫 화면 중심을 실제 동선 가운데로 옮김</td></tr>
+      </table></div>
+      <p>시험 중에 <strong>"이름이 겹쳐서 지도가 안 뜨는"</strong> 실수(<code>pin</code>이라는 이름을 두 번 씀)를 찾아 배포 전에 고쳤어요.</p>
+    </div>
+    <div class="c">
+      <h3>HTTP 상태 코드 <a class="cl" href="./#c1-4">1장 · HTTP 상태 코드 →</a></h3>
+      <div class="tbl"><table>
+        <tr><th>번호</th><th>뜻</th><th>이번에 본 곳</th></tr>
+        <tr><td><strong>200</strong></td><td>"잘 받았어요"</td><td>누구나 카트 위치와 판매 기록을 읽을 수 있음</td></tr>
+        <tr><td><strong>401</strong></td><td>"출입증이 없거나 권한이 없어요"</td><td>로그인 없이 위치 쓰기, 5분 안 재요청, 상태 위조가 모두 막힘 (일부러 막히는 게 정상)</td></tr>
+        <tr><td><strong>404</strong></td><td>"그런 페이지 없어요"</td><td>사이트 이름이 바뀐 뒤 옛 주소, 아직 없는 챗봇 서버 주소</td></tr>
+      </table></div>
+    </div>
+    <div class="c">
+      <h3>모니터링과 로그 <a class="cl" href="./#c8-8">8장 · 모니터링과 로그 →</a></h3>
+      <p>사람이 "배포했어"라고 했는데 사이트에는 예전 코드가 있었어요. 이때 <strong>배포 기록의 시각(오후 2:00)과 파일을 고친 시각(오후 2:15)</strong>을 비교해서 "새 배포가 아직 안 올라갔어요"라고 원인을 정확히 알려 줬어요. 매번 브라우저 오류 기록(콘솔)도 확인했어요.</p>
+      <div class="kid">🧒 <b>비유:</b> "숙제 냈어"라는 말만 믿지 않고 <b>제출함의 접수 시간</b>을 확인한 거예요.</div>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="step" id="s10">
+    <div class="step-h"><span class="n">10</span><h2>한눈에 보는 연결표<small>부탁 → 한 일 → 쓰인 개념</small></h2></div>
+    <div class="tbl"><table>
+      <tr><th>사람의 부탁</th><th>AI가 한 일</th><th>쓰인 개념</th></tr>
+      <tr><td>경로를 홈페이지에서 보게 해 줘</td><td>사이트를 먼저 열어 보고, 설명서와 설계도 작성</td><td><a class="cl" href="./#c10-2">10장 · 입구 검사</a><a class="cl" href="./#c1-1">1장 · 클라이언트·서버</a></td></tr>
+      <tr><td>index.html에 합쳐 줘</td><td>지도 칸, 운전자 페이지, 설정 파일 제작</td><td><a class="cl" href="./#c2-1">2장 · API·SDK</a><a class="cl" href="./#c2-4">2장 · 웹훅</a><a class="cl" href="./#c7-5">7장 · 하트비트</a></td></tr>
+      <tr><td>Codex에 검수시켜 줘</td><td>다른 AI의 검사 결과를 코드와 대조, 맞는 것만 반영</td><td><a class="cl" href="./#c10-2">10장 · 출구 검사</a><a class="cl" href="./#c7-1">7장 · 재시도</a></td></tr>
+      <tr><td>규칙 게시해 줘</td><td>서랍별 열쇠, 일부러 막히는지 시험</td><td><a class="cl" href="./#c3-2">3장 · 최소 권한</a><a class="cl" href="./#c8-5">8장 · 테스트</a></td></tr>
+      <tr><td>(되돌려 줘)</td><td>그 파일만 정확히 되돌리고 나머지는 물어봄</td><td><a class="cl" href="./#c10-2">10장 · 사람 확인</a></td></tr>
+      <tr><td>테스트 결과야 (좌표 8개)</td><td>실제 데이터와 대조, 지도 중심만 조정</td><td><a class="cl" href="./#c9-2">9장 · 트레이드오프</a></td></tr>
+      <tr><td>히트맵·챗봇 만들어 줘</td><td>판매 기록 쌓기, 규칙 답변 + AI 자리</td><td><a class="cl" href="./#c6-3">6장 · 이벤트 소싱</a><a class="cl" href="./#c7-3">7장 · 서킷 브레이커</a><a class="cl" href="./#c3-6">3장 · 프롬프트 인젝션</a></td></tr>
+      <tr><td>돈은 내고 싶지 않아</td><td>AI 답변을 빼고 무료 규칙 답변으로</td><td><a class="cl" href="./#c9-2">9장 · 트레이드오프</a></td></tr>
+      <tr><td>추천·수량·공지 만들어 줘</td><td>시간대 분석, 수량을 한 덩어리로 빼기</td><td><a class="cl" href="./#c7-7">7장 · 동시성</a><a class="cl" href="./#c4-4">4장 · 인덱스</a></td></tr>
+      <tr><td>카트 부르기 만들어 줘</td><td>익명 출입증, 5분 제한, 요청과 시각을 함께 저장</td><td><a class="cl" href="./#c3-1">3장 · 토큰</a><a class="cl" href="./#c4-3">4장 · ACID</a></td></tr>
+      <tr><td>위치 오차 줄여 줘</td><td>새로 재기, 여러 번 재기, 핀으로 확인</td><td><a class="cl" href="./#c5-1">5장 · 캐시</a><a class="cl" href="./#c7-1">7장 · 재시도</a><a class="cl" href="./#c7-4">7장 · 타임아웃</a></td></tr>
+      <tr><td>못 가면 안내해 줘</td><td>가는 중·도착·못 가요, 30분 자동 안내</td><td><a class="cl" href="./#c7-4">7장 · 타임아웃</a><a class="cl" href="./#c7-2">7장 · 멱등성</a></td></tr>
+      <tr><td>배포했어, 확인해 줘</td><td>실제 사이트 코드·배포 시각·오류 기록 확인</td><td><a class="cl" href="./#c8-8">8장 · 로그</a><a class="cl" href="./#c1-4">1장 · 상태 코드</a><a class="cl" href="./#c5-1">5장 · 캐시</a></td></tr>
+    </table></div>
+  </section>
+
+  <!-- 11 -->
+  <section class="step" id="s11">
+    <div class="step-h"><span class="n">11</span><h2>돌아보기: 더 잘할 수 있었던 점<small>좋은 에이전트는 아쉬운 점도 솔직하게 말해요</small></h2></div>
+    <div class="c">
+      <ul>
+        <li><strong>비용을 먼저 물었어야 했어요.</strong> AI 챗봇을 만들 때 유료 모델을 기본으로 골랐다가, 사람이 "돈은 내고 싶지 않아"라고 해서 다시 뺐어요. 돈이 드는 선택은 <strong>만들기 전에</strong> 물어보는 게 맞아요. 🧒 장보기 전에 예산부터 정하는 거예요.</li>
+        <li><strong>명령어 실수로 설명서 한 장(13장)이 깨졌어요.</strong> 글 속의 특수 기호를 명령으로 잘못 처리했어요. 바로 알아채서 파일로 다시 써 넣어 복구했어요.</li>
+        <li><strong>같은 이름을 두 번 써서 지도가 안 뜬 적이 있어요.</strong> 배포 전에 시험에서 찾아 고쳤지만, 원래 있던 이름을 먼저 확인했다면 없었을 실수예요.</li>
+        <li><strong>보안 규칙을 다섯 번 나눠 게시했어요.</strong> 기능이 하나씩 늘어날 때마다 규칙을 고쳤어요. 처음부터 전체 그림을 그렸다면 게시 횟수와 사람의 수고를 줄일 수 있었어요.</li>
+        <li><strong>운전자 버튼은 직접 시험하지 못했어요.</strong> 비밀번호를 받지 않는 게 원칙이라, "가는 중 / 도착" 버튼은 사람이 폰으로 확인해야 한다고 솔직하게 알렸어요.</li>
+        <li><strong>시험용 익명 계정이 몇 개 남았어요.</strong> 개인정보는 없지만, 시험이 끝나면 정리하자고 미리 말해 두었으면 더 깔끔했을 거예요.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="finale" aria-label="마무리">
+    <div class="k">THE TAKEAWAY</div>
+    <p>실전 사례 1이 "막히면 길을 바꾸는" 이야기였다면, 실전 사례 2는 <strong>사람과 함께 현장에서 고쳐 나가는</strong> 이야기예요. 부탁의 크기를 맞추고(<strong>입구 검사</strong>), 다른 AI의 검사도 그대로 믿지 않고(<strong>출구 검사</strong>), 열쇠는 꼭 필요한 만큼만 주고(<strong>최소 권한</strong>), 돈과 정확도 사이에서 사람이 고르게 하고(<strong>트레이드오프</strong>), 되돌리기 어려운 일은 먼저 물어봤어요(<strong>사람 확인</strong>).</p>
+    <div class="flow" aria-label="전체 흐름">
+      <span>프롬프트</span><i>→</i><span>사이트 먼저 보기</span><i>→</i><span>설계도</span><i>→</i><span>만들기 (손발)</span><i>→</i><span>다른 AI 검사</span><i>→</i><span>사람 확인 후 게시</span><i>→</i><span>현장 테스트</span><i>→</i><span>고치기</span><i>→</i><span>답변</span>
+    </div>
+    <p style="font-size:15px;color:var(--soft)"><a class="cl" href="./#c11-1">11장 · 한눈에 보는 전체 흐름 →</a> <a class="cl" href="agent-case.html">실전 사례 1: 반도체 노트와 사이트 이사 →</a></p>
+  </section>
+</main>
+
+<p class="foot">AI WITH DANNY · FIELD CASE 02</p>
+</body>
+</html>

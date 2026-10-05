@@ -604,6 +604,12 @@ a.cartbar{text-decoration:none}
       <span class="live">CASE</span>
     </a>
 
+    <a class="cartbar semibar casebar" href="agent-case2.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+      <span class="ct"><b>실전 사례 2: 판매 카트 위치 추적 사이트 만들기</b><small>부탁(프롬프트)을 에이전트가 어떻게 수행했는지, 12개 장의 개념으로 풀어 보기</small></span>
+      <span class="live">CASE 2</span>
+    </a>
+
     <div class="shortcuts" aria-label="장 바로가기">
       <button class="sc" type="button" data-nav="c1"><span class="ic"><i>01</i></span><span class="lb">인터넷의 기본</span></button>
       <button class="sc" type="button" data-nav="c2"><span class="ic"><i>02</i></span><span class="lb">API</span></button>
@@ -1709,6 +1715,16 @@ a.cartbar{text-decoration:none}
    ['s7','실전 사례 · 안전하게 일하기','oauth 최소 권한 비밀 관리 사람 확인 가드레일']
   ].forEach(function(c){
     index.push({url:'agent-case.html#'+c[0],title:c[1],label:'실전 사례',head:(c[1]+' '+c[2]).toLowerCase(),body:'',concept:true});
+  });
+  /* 실전 사례 2 페이지 (agent-case2.html) */
+  [['s0','실전 사례 2: 판매 카트 위치 추적 사이트 만들기','실전 사례 2 case study 카트 위치 추적 where is my cart firebase 프롬프트 수행'],
+   ['s4','실전 사례 2 · 다른 AI에게 검사받기','codex 검수 출구 검사 eval 재시도'],
+   ['s5','실전 사례 2 · 열쇠와 자물쇠','보안 규칙 토큰 익명 로그인 최소 권한 민감한 정보 사람 확인'],
+   ['s6','실전 사례 2 · 실패에 강하게','재시도 타임아웃 서킷 브레이커 멱등성 동시성 트랜잭션 acid'],
+   ['s7','실전 사례 2 · 돈과 정확도 사이','트레이드오프 ai 비용 무료 규칙 챗봇'],
+   ['s8','실전 사례 2 · 데이터로 결정하기','이벤트 소싱 판매 히트맵 추천 캐시']
+  ].forEach(function(c){
+    index.push({url:'agent-case2.html#'+c[0],title:c[1],label:'실전 사례 2',head:(c[1]+' '+c[2]).toLowerCase(),body:'',concept:true});
   });
   /* 반도체 현업 용어집 (semi-glossary.js): 용어를 누르면 semiconductor.html의 용어 카드로 이동 */
   (window.SEMI_GLOSSARY||[]).forEach(function(c){

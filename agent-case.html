@@ -51,11 +51,10 @@ h1 b{color:var(--orange);text-shadow:var(--glow-o)}
 .shell{max-width:980px;margin:-70px auto 0;position:relative}
 .toc{border:1px solid var(--line-hi);background:var(--panel);padding:16px 20px}
 .toc .k{font-family:var(--display);font-size:11px;letter-spacing:.26em;color:var(--cyan)}
-.toc ol{margin:8px 0 0;padding-left:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:4px 18px;counter-reset:t}
+.toc ol{margin:8px 0 0;padding-left:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:4px 18px;counter-reset:t -1}
 .toc li{counter-increment:t}
 .toc a{display:grid;grid-template-columns:28px minmax(0,1fr);gap:6px;color:var(--text);text-decoration:none;padding:4px 0;font-size:15px}
 .toc a::before{content:counter(t,decimal-leading-zero);font:700 12px var(--display);color:var(--orange);padding-top:3px}
-.toc li:first-child a::before{content:"00"}
 .toc a:hover{color:var(--cyan)}
 .howto{margin-top:12px;font-size:14px;color:var(--soft)}
 .howto .cl{pointer-events:none}
@@ -408,7 +407,7 @@ td .cl{margin:2px 4px 2px 0}
     <div class="flow" aria-label="전체 흐름">
       <span>프롬프트</span><i>→</i><span>입구 검사</span><i>→</i><span>계획 (두뇌)</span><i>→</i><span>도구 사용 (손발)</span><i>→</i><span>실패 대응</span><i>→</i><span>출구 검사</span><i>→</i><span>사람 확인</span><i>→</i><span>답변</span>
     </div>
-    <p style="font-size:15px;color:var(--soft)"><a class="cl" href="./#c11-1">11장 · 한눈에 보는 전체 흐름 →</a> <a class="cl" href="semiconductor.html">이 사례에서 만든 반도체소자 노트 →</a></p>
+    <p style="font-size:15px;color:var(--soft)"><a class="cl" href="./#c11-1">11장 · 한눈에 보는 전체 흐름 →</a> <a class="cl" href="semiconductor.html">이 사례에서 만든 반도체소자 노트 →</a> <a class="cl" href="agent-case2.html">실전 사례 2: 판매 카트 위치 추적 →</a></p>
   </section>
 </main>
 
